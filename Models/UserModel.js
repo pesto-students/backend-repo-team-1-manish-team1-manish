@@ -6,13 +6,16 @@ const User = {};
 
 // CREATE USER
 User.create = async (name, firstName, lastName, email, phoneNo, password, authProvider, bookmarkIds) => {
-    console.log(name, firstName, lastName, email, phoneNo, password, authProvider, bookmarkIds);
     try {
         const hashedPassword = password ? await bcrypt.hash(password, 10) : '';
         await sql`
       INSERT INTO users (id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids)
       VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${bookmarkIds})
     `;
+        const newUser = (await sql`
+    SELECT * FROM users WHERE email = ${email}
+  `)[0];
+        return newUser;
     } catch (error) {
         console.error('Error creating user:', error);
         throw error;

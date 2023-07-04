@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 exports.checkTokenMW = (req, res, next) => {
     // Get auth header value
     const bearerHeader = req.headers['authorization'];
-    console.log(bearerHeader);
     if (typeof bearerHeader !== 'undefined') {
         req.token = bearerHeader.split(' ')[1];
         next();

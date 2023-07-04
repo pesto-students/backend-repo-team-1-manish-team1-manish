@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const authService = require('../Middleware/AuthService');
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../Models/UserModel');
 require('../Middleware/Passport');
 
@@ -23,7 +24,7 @@ router.post("/register", async (req, res) => {
         }
         const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self', null);
         jwt.sign(
-            { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider, phone_no: user.phone_no, bookmark_ids: user.bookmark_ids },
+            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, auth_provider: newUser.auth_provider, phone_no: newUser.phone_no, bookmark_ids: newUser.bookmark_ids },
             process.env.CLIENT_SECRET,
             { expiresIn: '120 min' },
             (err, token) => {
@@ -48,7 +49,6 @@ router.post("/register", async (req, res) => {
 // Route to handle user login
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
-    console.log(req.body);
     try {
         const user = (await User.getByEmail(email))[0];
 
@@ -100,11 +100,11 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        console.log("called");
-        res.cookie("jwtoken", req.token, {
-            expires: new Date(Date.now() + 258920000000000),
-            httpOnly: true
-        });
+        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true });
+        // res.cookie("jwtoken", req.token, {
+        //     expires: new Date(Date.now() + 258920000000000),
+        //     httpOnly: true
+        // });
         res.send('<script>window.close()</script>');
     }
 );
