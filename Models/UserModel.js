@@ -7,13 +7,13 @@ const User = {};
 // CREATE USER
 User.create = async (name, firstName, lastName, email, phoneNo, password, authProvider, bookmarkIds) => {
     try {
-        const hashedPassword = password ? await bcrypt.hash(password, 10) : '';
+        const hashedPassword = !authProvider ? await bcrypt.hash(password, 10) : '';
         await sql`
-      INSERT INTO users (id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids)
-      VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${bookmarkIds})
+      INSERT INTO users (id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids, otp)
+      VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${bookmarkIds}, ${null})
     `;
         const newUser = (await sql`
-    SELECT * FROM users WHERE email = ${email}
+    SELECT id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider FROM users WHERE email = ${email}
   `)[0];
         return newUser;
     } catch (error) {
@@ -59,32 +59,58 @@ User.getByEmail = async (email) => {
 };
 
 // UPDATE A USER
-User.update = async (id, name, firstName, lastName, email, phoneNo, password, roleId, authProvider, bookmarkIds) => {
+User.update = async (email, name, firstName, lastName, phoneNo, roleId, authProvider, bookmarkIds) => {
     try {
-        return await sql`
-      UPDATE users
-      SET name = ${name},
-          first_name = ${firstName},
-          last_name = ${lastName},
-          email = ${email},
-          phone_no = ${phoneNo},
-          password = ${password},
-          role_id = ${roleId},
-          auth_provider = ${authProvider},
-          bookmark_ids = ${bookmarkIds}
-      WHERE id = ${id}
-    `;
+        let query = sql`UPDATE users SET name = ${name}`;
+
+        if (firstName) query.append(sql`, first_name = ${firstName}`);
+        if (lastName) query.append(sql`, last_name = ${lastName}`);
+        if (phoneNo) query.append(sql`, phone_no = ${phoneNo}`);
+        if (roleId) query.append(sql`, role_id = ${roleId}`);
+        if (authProvider) query.append(sql`, auth_provider = ${authProvider}`);
+        if (bookmarkIds) query.append(sql`, bookmark_ids = ${bookmarkIds}`);
+
+        query.append(sql` WHERE email = ${email}`);
+
+        return await query;
     } catch (error) {
         console.error('Error updating user:', error);
         throw error;
     }
 };
 
+// UPDATE A USER
+User.resetPassword = async (email, password, otp) => {
+    try {
+        const existingUser = (await sql`
+        SELECT * FROM users WHERE email = ${email}
+      `)[0];
+
+        if (otp && existingUser) {
+            if (otp == existingUser.otp) {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                let query = sql`UPDATE users SET password = ${hashedPassword}`;
+                query.append(sql` WHERE email = ${email}`);
+                await query;
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating password:', error);
+        throw error;
+    }
+};
+
+
 // DELETE A USER
-User.delete = async (id) => {
+User.delete = async (email) => {
     try {
         return await sql`
-      DELETE FROM users WHERE id = ${id}
+      DELETE FROM users WHERE email = ${email}
     `;
     } catch (error) {
         console.error('Error deleting user:', error);
