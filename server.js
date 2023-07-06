@@ -2,8 +2,10 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authMiddleware = require('./Middleware/AuthService');
+const payment = require('./Middleware/Payment');
 const userOAuthRouter = require('./Routes/OAuthRoute');
 const userAuthRouter = require('./Routes/AuthRoute');
+const paymentRouter = require('./Routes/PaymentRoute');
 const passport = require('passport');
 const cors = require('cors');
 const cookieSession = require('cookie-session');
@@ -35,5 +37,7 @@ app.use("/auth", userOAuthRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 
+//Payment
+app.use("/checkout", paymentRouter);
 
 app.listen(port, () => console.log("server running on port" + port))
