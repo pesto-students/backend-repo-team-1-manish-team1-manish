@@ -39,7 +39,7 @@ app.use(
         target: 'https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getTrims', // Replace with your API server URL
         changeOrigin: true,
         pathRewrite: {
-            '^/api': '', // Remove the '/api' path prefix
+            '^/carapi/trim': '', // Remove the '/api' path prefix
         },
     })
 );

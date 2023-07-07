@@ -61,14 +61,13 @@ User.getByEmail = async (email) => {
 // UPDATE A USER
 User.update = async (email, name, firstName, lastName, phoneNo, roleId, authProvider, bookmarkIds) => {
     try {
-        let query = sql`UPDATE users SET name = ${name}`;
+        let query = sql`UPDATE users SET name = ${name}${firstName ? `, first_name = ${firstName}` : ''}${lastName ? `, last_name = ${lastName}` : ''}${phoneNo ? `, phone_no = ${phoneNo}` : ''}${bookmarkIds ? `, bookmark_ids = ${bookmarkIds}` : ''}`;
 
-        if (firstName) query.append(sql`, first_name = ${firstName}`);
-        if (lastName) query.append(sql`, last_name = ${lastName}`);
-        if (phoneNo) query.append(sql`, phone_no = ${phoneNo}`);
-        if (roleId) query.append(sql`, role_id = ${roleId}`);
-        if (authProvider) query.append(sql`, auth_provider = ${authProvider}`);
-        if (bookmarkIds) query.append(sql`, bookmark_ids = ${bookmarkIds}`);
+        // if (firstName) query.append(sql`, first_name = ${firstName}`);
+        // if (lastName) query.append(sql`, last_name = ${lastName}`);
+        // if (phoneNo) query.append(sql`, phone_no = ${phoneNo}`);
+        // if (authProvider) query.append(sql`, auth_provider = ${authProvider}`);
+        // if (bookmarkIds) query.append(sql`, bookmark_ids = ${bookmarkIds}`);
 
         query.append(sql` WHERE email = ${email}`);
 
@@ -89,8 +88,8 @@ User.resetPassword = async (email, password, otp) => {
         if (otp && existingUser) {
             if (otp == existingUser.otp) {
                 const hashedPassword = await bcrypt.hash(password, 10);
-                let query = sql`UPDATE users SET password = ${hashedPassword}`;
-                query.append(sql` WHERE email = ${email}`);
+                let query = sql`UPDATE users SET password = ${hashedPassword} WHERE email = ${email}`;
+                // query.append(sql` WHERE email = ${email}`);
                 await query;
                 return true;
             } else {

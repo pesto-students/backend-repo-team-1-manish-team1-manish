@@ -97,9 +97,9 @@ router.post("/otp/send", async (req, res) => {
             return res.status(404).send({ message: "User does not exist!" });
         }
 
-        const mailSent = await Mailer.sendOtp(user.name, user.email);
+        const isMailSent = await Mailer.sendOtp(user.name, user.email);
 
-        if (mailSent.status) {
+        if (isMailSent) {
             return res.status(200).send({ message: "Mail sent Successfully !" });
         } else {
             return res.status(400).send({ message: "Something went wrong! Please try again." });
@@ -156,14 +156,15 @@ router.post("/otp/reset", async (req, res) => {
         return res.status(200).send({ message: "Password reset successfull !" });
 
     } catch (error) {
-        console.error("Error while sending otp:", error);
+        console.error("Error while resetting password:", error);
         return res.status(500).send({ message: "Something went wrong! Please try again." });
     }
 });
 
 router.get('/google',
     passport.authenticate('google', {
-        scope: ['email', 'profile']
+        scope: ['email', 'profile'],
+        prompt: 'select_account'
     })
 );
 
