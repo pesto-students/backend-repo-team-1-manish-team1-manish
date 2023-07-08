@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authMiddleware = require('./Middleware/AuthService');
 const userOAuthRouter = require('./Routes/OAuthRoute');
+const carsRouter = require('./Routes/CarsRoute');
 const userAuthRouter = require('./Routes/AuthRoute');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const passport = require('passport');
@@ -44,6 +45,7 @@ app.use(
     })
 );
 app.use("/auth", userOAuthRouter);
+app.use("/cars", carsRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 
