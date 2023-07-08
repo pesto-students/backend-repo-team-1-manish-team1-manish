@@ -12,12 +12,10 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 router.get("/login/success", async (req, res) => {
     const { email } = req.authData;
-    console.log(req.authData);
     if (req.authData && email) {
 
         try {
             const user = await User.getByEmail(email);
-            console.log(user);
 
             if (!user[0]) {
                 return res.status(404).send({ message: "User does not exist!" });
