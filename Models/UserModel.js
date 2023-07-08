@@ -59,19 +59,19 @@ User.getByEmail = async (email) => {
 };
 
 // UPDATE A USER
-User.update = async (email, name, firstName, lastName, phoneNo, roleId, authProvider, bookmarkIds) => {
+User.update = async (email, name, firstName, lastName, phoneNo, authProvider, bookmarkIds) => {
     try {
-        let query = sql`UPDATE users SET name = ${name}${firstName ? `, first_name = ${firstName}` : ''}${lastName ? `, last_name = ${lastName}` : ''}${phoneNo ? `, phone_no = ${phoneNo}` : ''}${bookmarkIds ? `, bookmark_ids = ${bookmarkIds}` : ''}`;
+        let query = `UPDATE users SET name = ${name}`;
 
-        // if (firstName) query.append(sql`, first_name = ${firstName}`);
-        // if (lastName) query.append(sql`, last_name = ${lastName}`);
-        // if (phoneNo) query.append(sql`, phone_no = ${phoneNo}`);
-        // if (authProvider) query.append(sql`, auth_provider = ${authProvider}`);
-        // if (bookmarkIds) query.append(sql`, bookmark_ids = ${bookmarkIds}`);
+        if (firstName) query.concat(`, first_name = ${firstName}`);
+        if (lastName) query.concat(`, last_name = ${lastName}`);
+        if (phoneNo) query.concat(`, phone_no = ${phoneNo}`);
+        if (authProvider) query.concat(`, auth_provider = ${authProvider}`);
+        if (bookmarkIds) query.concat(`, bookmark_ids = ${bookmarkIds}`);
 
-        query.append(sql` WHERE email = ${email}`);
+        query.concat(` WHERE email = ${email}`);
 
-        return await query;
+        return await sql`${query}`;
     } catch (error) {
         console.error('Error updating user:', error);
         throw error;
@@ -89,7 +89,7 @@ User.resetPassword = async (email, password, otp) => {
             if (otp == existingUser.otp) {
                 const hashedPassword = await bcrypt.hash(password, 10);
                 let query = sql`UPDATE users SET password = ${hashedPassword} WHERE email = ${email}`;
-                // query.append(sql` WHERE email = ${email}`);
+                // query.concat(` WHERE email = ${email}`);
                 await query;
                 return true;
             } else {

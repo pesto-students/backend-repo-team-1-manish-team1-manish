@@ -15,19 +15,27 @@ router.post('/', async (req, res) => {
         year,
         model,
         fuelType,
+        fuelCapacity,
         registrationYear,
+        engine,
         variant,
         ownership,
         kmDriven,
         transmission,
+        transmissionShort,
+        insurance,
         pinCode,
-        location,
+        registrationState,
+        city,
         registrationNumber,
         sellerId,
-        nearestRTO,
+        buyerId,
+        nearestRtoOffice,
         price,
-        carType,
-        tags
+        type,
+        tags,
+        images,
+        carApiId
     } = req.body;
 
     try {
@@ -36,19 +44,27 @@ router.post('/', async (req, res) => {
             year,
             model,
             fuelType,
+            fuelCapacity,
             registrationYear,
+            engine,
             variant,
             ownership,
             kmDriven,
             transmission,
+            transmissionShort,
+            insurance,
             pinCode,
-            location,
+            registrationState,
+            city,
             registrationNumber,
             sellerId,
-            nearestRTO,
+            buyerId,
+            nearestRtoOffice,
             price,
-            carType,
-            tags
+            type,
+            tags,
+            images,
+            carApiId
         );
 
         res.status(201).json(newCarDetails);
@@ -95,19 +111,27 @@ router.put('/:id', async (req, res) => {
         year,
         model,
         fuelType,
+        fuelCapacity,
         registrationYear,
+        engine,
         variant,
         ownership,
         kmDriven,
         transmission,
+        transmissionShort,
+        insurance,
         pinCode,
-        location,
+        registrationState,
+        city,
         registrationNumber,
         sellerId,
-        nearestRTO,
+        buyerId,
+        nearestRtoOffice,
         price,
-        carType,
-        tags
+        type,
+        tags,
+        images,
+        carApiId
     } = req.body;
 
     try {
@@ -117,19 +141,27 @@ router.put('/:id', async (req, res) => {
             year,
             model,
             fuelType,
+            fuelCapacity,
             registrationYear,
+            engine,
             variant,
             ownership,
             kmDriven,
             transmission,
+            transmissionShort,
+            insurance,
             pinCode,
-            location,
+            registrationState,
+            city,
             registrationNumber,
             sellerId,
-            nearestRTO,
+            buyerId,
+            nearestRtoOffice,
             price,
-            carType,
-            tags
+            type,
+            tags,
+            images,
+            carApiId
         );
 
         if (updatedCarDetails) {
@@ -186,5 +218,143 @@ router.post('/:id/buy', async (req, res) => {
     }
 });
 
+// Route to fetch car brands for a range of price
+router.get('/brands/:minPrice/:maxPrice', async (req, res) => {
+    const { minPrice, maxPrice } = req.params;
+
+    try {
+        const carBrands = await CarDetails.getBrandsByPriceRange(minPrice, maxPrice);
+        res.status(200).json(carBrands);
+    } catch (error) {
+        console.error('Error fetching car brands by price range:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car brands' });
+    }
+});
+
+// Route to fetch car types based on price range and brand
+router.get('/brands/:minPrice/:maxPrice/types/:brand', async (req, res) => {
+    const { minPrice, maxPrice, brand } = req.params;
+
+    try {
+        const carTypes = await CarDetails.getCarTypesByPriceRangeAndBrand(minPrice, maxPrice, brand);
+        res.status(200).json(carTypes);
+    } catch (error) {
+        console.error('Error fetching car types by price range and brand:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car types' });
+    }
+});
+
+// Route to fetch car details based on price range, brand, and car type
+router.get('/brands/:minPrice/:maxPrice/types/:brand/:type', async (req, res) => {
+    const { minPrice, maxPrice, brand, type } = req.params;
+
+    try {
+        const carDetails = await CarDetails.getCarDetailsByPriceRangeBrandAndType(minPrice, maxPrice, brand, type);
+        res.status(200).json(carDetails);
+    } catch (error) {
+        console.error('Error fetching car details by price range, brand, and type:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car details' });
+    }
+});
+
+// Route to fetch all car brands
+router.get('/brands', async (req, res) => {
+    try {
+        const carBrands = await CarDetails.getAllCarBrands();
+        res.status(200).json(carBrands);
+    } catch (error) {
+        console.error('Error fetching all car brands:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car brands' });
+    }
+});
+
+// Route to fetch car models with their brand
+router.get('/models', async (req, res) => {
+    try {
+        const carModels = await CarDetails.getCarModelsWithBrand();
+        res.status(200).json(carModels);
+    } catch (error) {
+        console.error('Error fetching car models with brand:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car models' });
+    }
+});
+
+// Route to fetch car details based on optional query parameters
+router.get('/search', async (req, res) => {
+    const { brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice } = req.query;
+
+    try {
+        const carDetails = await CarDetails.getCarDetailsWithOptionalParameters(
+            brands ? brands.split(',') : null,
+            minPrice,
+            maxPrice,
+            models ? models.split(',') : null,
+            year,
+            fuelType,
+            kmDriven,
+            transmission,
+            nearestRtoOffice
+        );
+        res.json(carDetails);
+    } catch (error) {
+        console.error('Error fetching car details with optional parameters:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car details' });
+    }
+});
+
+// Route to fetch available car fuel types and the count of cars for each fuel type
+router.get('/fuel-types', async (req, res) => {
+    try {
+        const fuelTypes = await CarDetails.getAvailableFuelTypes();
+        res.status(200).json(fuelTypes);
+    } catch (error) {
+        console.error('Error fetching available car fuel types:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car fuel types' });
+    }
+});
+
+// Route to fetch available car types and the count of cars for each car type
+router.get('/car-types', async (req, res) => {
+    try {
+        const carTypes = await CarDetails.getAvailableCarTypes();
+        res.status(200).json(carTypes);
+    } catch (error) {
+        console.error('Error fetching available car types:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car types' });
+    }
+});
+
+// Route to fetch count of cars that have automatic or manual transmission
+router.get('/transmission-count', async (req, res) => {
+    try {
+        const transmissionCount = await CarDetails.getTransmissionCount();
+        res.status(200).json(transmissionCount);
+    } catch (error) {
+        console.error('Error fetching car transmission count:', error);
+        res.status(500).json({ message: 'Error occurred while fetching car transmission count' });
+    }
+});
+
+// Route to fetch available ownerships and their count
+router.get('/ownerships', async (req, res) => {
+    try {
+        const ownerships = await CarDetails.getAvailableOwnerships();
+        res.status(200).json(ownerships);
+    } catch (error) {
+        console.error('Error fetching available ownerships:', error);
+        res.status(500).json({ message: 'Error occurred while fetching ownerships' });
+    }
+});
+
+// Route to fetch all unique available RTO offices and their count
+router.get('/rto-offices', async (req, res) => {
+    try {
+        const rtoOffices = await CarDetails.getAvailableRTOOffices();
+        res.status(200).json(rtoOffices);
+    } catch (error) {
+        console.error('Error fetching available RTO offices:', error);
+        res.status(500).json({ message: 'Error occurred while fetching RTO offices' });
+    }
+});
 
 module.exports = router;
