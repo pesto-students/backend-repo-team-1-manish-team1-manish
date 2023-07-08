@@ -4,13 +4,14 @@ const router = express.Router();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const shortid = require("shortid");
+const User = require('../Models/UserModel');
+const sql = require("../DB/PostgresSql");
 require("dotenv").config();
 
 router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: true }));
 router.use(cors());
 
-const { KEY_ID, KEY_SECRET } = process.env;
+const { KEY_ID, KEY_SECRET, WEBHOOK_SECRET } = process.env;
 
 let rzp = new Razorpay({
   key_id: KEY_ID,
@@ -20,7 +21,7 @@ let rzp = new Razorpay({
 // Verification
 router.post("/verification", (req, res) => {
   // do a validation
-  const secret = "WEBHOOK_SECRET";
+  const secret = WEBHOOK_SECRET;
   console.log(req.body);
 
   const crypto = require("crypto");
@@ -33,10 +34,21 @@ router.post("/verification", (req, res) => {
 
   if (digest === req.headers["x-razorpay-signature"]) {
     console.log("Request verified");
-    console.log(JSON.stringify(req.body, null, 4));
+
+    const { id, order_id, payment_id, signature } = req.body;
+    
     // Write to db (optional)
+    User.create = async (id, order_id, payment_id, signature) => {
+    try {
+        await sql `INSERT INTO payments (id, order_id, payment_id, signature) VALUES (${id}, ${order_id}, ${payment_id}, ${signature})`;
+      
+    } catch(error) {
+      console.error('Error executing the database query:', err);
+      res.status(500).json({ error: 'An error occurred while saving the payment.' });
+    }}
+    res.json({ message: 'Payment saved successfully.' });
   } else {
-    // ignore or pass it
+    console.log("Request unverified!");
   }
   res.json({ status: "ok" });
 });
@@ -44,8 +56,10 @@ router.post("/verification", (req, res) => {
 // Checkout
 router.post("/checkout", async (req, res) => {
   const payment_capture = 1;
-  const amount = 100;
+  const amount = req.body.amount;
   const currency = "INR";
+  const name = req.body.name;
+  const email = req.body.email;
 
   const options = {
     amount: amount * 100,
@@ -58,12 +72,16 @@ router.post("/checkout", async (req, res) => {
     const response = await rzp.orders.create(options);
     console.log(response);
     res.json({
-      id: response.id,
+      orderId: response.id,
       currency: response.currency,
       amount: response.amount,
+      name: name,
+      email: email,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: "Failed to create payment" });
   }
 });
+
+module.exports = router;
