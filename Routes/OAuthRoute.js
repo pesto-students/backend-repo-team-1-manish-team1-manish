@@ -8,6 +8,7 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/UserModel');
+const Mailer = require('../Models/EmailModel');
 require('../Middleware/Passport');
 
 router.use(cookieParser())
@@ -86,9 +87,84 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// Route to handle otp request
+router.post("/otp/send", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = (await User.getByEmail(email))[0];
+
+        if (!user) {
+            return res.status(404).send({ message: "User does not exist!" });
+        }
+
+        const isMailSent = await Mailer.sendOtp(user.name, user.email);
+
+        if (isMailSent) {
+            return res.status(200).send({ message: "Mail sent Successfully !" });
+        } else {
+            return res.status(400).send({ message: "Something went wrong! Please try again." });
+        }
+
+    } catch (error) {
+        console.error("Error while sending otp:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
+// Route to handle reset password
+router.post("/otp/validate", async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const user = (await User.getByEmail(email))[0];
+
+        if (!user) {
+            return res.status(404).send({ message: "User does not exist!" });
+        }
+
+        if (otp == user.otp) {
+            res.cookie("otp", otp, {
+                expires: new Date(Date.now() + 258920000000),
+                httpOnly: true
+            });
+            return res.sendStatus(200);
+        } else {
+            return res.status(400).send({ message: "Invalid OTP provided!" });
+        }
+    } catch (error) {
+        console.error("Error while validating otp:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
+// Route to handle otp request
+router.post("/otp/reset", async (req, res) => {
+    const { email, password } = req.body;
+    const otp = req.cookies.otp ?? null;
+    try {
+        const user = (await User.getByEmail(email))[0];
+
+        if (!user) {
+            return res.status(404).send({ message: "User does not exist!" });
+        }
+
+        const result = await User.resetPassword(email, password, otp);
+
+        if (!result) {
+            return res.status(400).send({ message: "Invalid OTP provided!" });
+        }
+
+        return res.status(200).send({ message: "Password reset successfull !" });
+
+    } catch (error) {
+        console.error("Error while resetting password:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
 router.get('/google',
     passport.authenticate('google', {
-        scope: ['email', 'profile']
+        scope: ['email', 'profile'],
+        prompt: 'select_account'
     })
 );
 
