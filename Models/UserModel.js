@@ -37,9 +37,9 @@ User.get = async () => {
 // GET USER BY ID
 User.getById = async (id) => {
     try {
-        return await sql`
+        return (await sql`
       SELECT * FROM users WHERE id = ${id}
-    `;
+    `)[0];
     } catch (error) {
         console.error('Error getting user by ID:', error);
         throw error;
@@ -49,9 +49,9 @@ User.getById = async (id) => {
 // GET USER BY EMAIL
 User.getByEmail = async (email) => {
     try {
-        return await sql`
+        return (await sql`
       SELECT * FROM users WHERE email = ${email}
-    `;
+    `)[0];
     } catch (error) {
         console.error('Error getting user by Email:', error);
         throw error;
@@ -61,15 +61,14 @@ User.getByEmail = async (email) => {
 // UPDATE A USER
 User.update = async (email, name, firstName, lastName, phoneNo, authProvider, bookmarkIds) => {
     try {
-        let query = `UPDATE users SET name = ${name}`;
-
-        if (firstName) query.concat(`, first_name = ${firstName}`);
-        if (lastName) query.concat(`, last_name = ${lastName}`);
-        if (phoneNo) query.concat(`, phone_no = ${phoneNo}`);
-        if (authProvider) query.concat(`, auth_provider = ${authProvider}`);
-        if (bookmarkIds) query.concat(`, bookmark_ids = ${bookmarkIds}`);
-
-        query.concat(` WHERE email = ${email}`);
+        let query = sql`UPDATE users SET name = ${name}
+        ${firstName ? sql`, first_name = ${firstName}` : sql``}
+        ${lastName ? sql`, last_name = ${lastName}` : sql``}
+        ${phoneNo ? sql`, phone_no = ${phoneNo}` : sql``}
+        ${authProvider ? sql`, auth_provider = ${authProvider}` : sql``}
+        ${bookmarkIds ? sql`, bookmark_ids = ${bookmarkIds}` : sql``}
+        WHERE email = ${email}
+        `;
 
         return await sql`${query}`;
     } catch (error) {
@@ -89,7 +88,6 @@ User.resetPassword = async (email, password, otp) => {
             if (otp == existingUser.otp) {
                 const hashedPassword = await bcrypt.hash(password, 10);
                 let query = sql`UPDATE users SET password = ${hashedPassword} WHERE email = ${email}`;
-                // query.concat(` WHERE email = ${email}`);
                 await query;
                 return true;
             } else {

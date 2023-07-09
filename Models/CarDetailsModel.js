@@ -33,9 +33,9 @@ CarDetails.get = async () => {
 // GET CAR DETAILS BY ID
 CarDetails.getById = async (id) => {
     try {
-        return await sql`
+        return (await sql`
       SELECT * FROM car_details WHERE Id = ${id}
-    `;
+    `)[0];
     } catch (error) {
         console.error('Error getting car details by ID:', error);
         throw error;
@@ -45,9 +45,9 @@ CarDetails.getById = async (id) => {
 // GET CAR DETAILS BY REGISTRATION NUMBER
 CarDetails.getByRegistrationNumber = async (registrationNumber) => {
     try {
-        return await sql`
+        return (await sql`
       SELECT * FROM car_details WHERE RegistrationNumber = ${registrationNumber}
-    `;
+    `)[0];
     } catch (error) {
         console.error('Error getting car details by registration number:', error);
         throw error;
@@ -55,11 +55,39 @@ CarDetails.getByRegistrationNumber = async (registrationNumber) => {
 };
 
 // UPDATE CAR DETAILS
-CarDetails.update = async (id, brand, year, model, fuelType, fuelCapacity, registrationYear, engine, variant, ownership, kmDriven, transmission, transmissionShort, insurance, pinCode, registrationState, city, registrationNumber, sellerId, buyerId, nearestRtoOffice, price, type, tags, images, carApiId) => {
+CarDetails.update = async (
+    id,
+    {
+        fuelType,
+        fuelCapacity,
+        registrationYear,
+        ownership,
+        kmDriven,
+        transmission,
+        transmissionShort,
+        insurance,
+        registrationState,
+        registrationNumber,
+        nearestRtoOffice,
+        images
+    } = {}
+) => {
     try {
-        let query = sql`
-      UPDATE car_details SET Brand = ${brand}, Year = ${year}, Model = ${model}, FualType = ${fuelType}, FualCapacity = ${fuelCapacity}, RegistrationYear = ${registrationYear}, Engine = ${engine}, Variant = ${variant}, Ownership = ${ownership}, KmDriven = ${kmDriven}, Transmission = ${transmission}, TransmissionShort = ${transmissionShort}, Insaurance = ${insurance}, PinCode = ${pinCode}, RegistrationState = ${registrationState}, City = ${city}, RegistrationNumber = ${registrationNumber}, SellerId = ${sellerId}, BuyerId = ${buyerId}, NearestRtoOffice = ${nearestRtoOffice}, Price = ${price}, Type = ${type}, Tags = ${tags}, Images = ${images}, carApiId = ${carApiId} WHERE Id = ${id}`;
-
+        let query = sql`UPDATE car_details SET Id = ${id}
+        ${fuelType ? sql`, FualType = ${fuelType}` : sql``}
+        ${fuelCapacity ? sql`, FualCapacity = ${fuelCapacity}` : sql``}
+        ${registrationYear ? sql`, RegistrationYear = ${registrationYear}` : sql``}
+        ${ownership ? sql`, Ownership = ${ownership}` : sql``}
+        ${kmDriven ? sql`, KmDriven = ${kmDriven}` : sql``}
+        ${transmission ? sql`, Transmission = ${transmission}` : sql``}
+        ${transmissionShort ? sql`, TransmissionShort = ${transmissionShort}` : sql``}
+        ${insurance ? sql`, Insaurance = ${insurance}` : sql``}
+        ${registrationState ? sql`, RegistrationState = ${registrationState}` : sql``}
+        ${registrationNumber ? sql`, RegistrationNumber = ${registrationNumber}` : sql``}
+        ${nearestRtoOffice ? sql`, NearestRtoOffice = ${nearestRtoOffice}` : sql``}
+        ${images ? sql`, Images = ${images}` : sql``}
+        WHERE Id = ${id}
+        `;
         return await query;
     } catch (error) {
         console.error('Error updating car details:', error);
@@ -157,46 +185,20 @@ CarDetails.getCarModelsWithBrand = async () => {
 // Fetch car details based on optional query parameters
 CarDetails.getCarDetailsWithOptionalParameters = async (brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice) => {
     try {
-        let query = `
-      SELECT * FROM car_details WHERE 1=1`;
+        let query = sql`
+      SELECT * FROM car_details WHERE 1=1
+      ${brands && brands.length > 0 ? sql` AND Brand IN (${brands})` : sql``}
+      ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
+      ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
+      ${models && models.length > 0 ? sql` AND Model IN (${models})` : sql``}
+      ${year ? sql` AND Year = ${year}` : sql``}
+      ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
+      ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
+      ${transmission ? sql` AND Transmission = ${transmission}` : sql``}
+      ${nearestRtoOffice ? sql` AND NearestRtoOffice = ${nearestRtoOffice}` : sql``}
+      `;
 
-        if (brands && brands.length > 0) {
-            query = query.concat(` AND Brand IN (${brands})`);
-        }
-
-        if (minPrice) {
-            query = query.concat(` AND Price >= ${minPrice}`);
-        }
-
-        if (maxPrice) {
-            query = query.concat(` AND Price <= ${maxPrice}`);
-        }
-
-        if (models && models.length > 0) {
-            query = query.concat(` AND Model IN (${models})`);
-        }
-
-        if (year) {
-            query = query.concat(` AND Year = ${year}`);
-        }
-
-        if (fuelType) {
-            query = query.concat(` AND FualType = ${fuelType}`);
-        }
-
-        if (kmDriven) {
-            query = query.concat(` AND KmDriven = ${kmDriven}`);
-        }
-
-        if (transmission) {
-            query = query.concat(` AND Transmission = ${transmission}`);
-        }
-
-        if (nearestRtoOffice) {
-            query = query.concat(` AND NearestRtoOffice = ${nearestRtoOffice}`);
-        }
-
-        return await sql`${query}`;
+        return await query;
     } catch (error) {
         console.error('Error getting car details with optional parameters:', error);
         throw error;

@@ -16,7 +16,7 @@ router.get("/login/success", async (req, res) => {
         try {
             const user = await User.getByEmail(email);
 
-            if (!user[0]) {
+            if (!user) {
                 return res.status(404).send({ message: "User does not exist!" });
             }
             return res.status(200).send(user[0])
@@ -43,7 +43,7 @@ router.get("/register/success", async (req, res) => {
 
         try {
             const user = await User.getByEmail(email);
-            if (user[0]) {
+            if (user) {
                 return res.status(409).send({ message: "User already exist! Please Login." });
             }
             await User.create(name, firstName, lastName, email, phoneNo, null, authProvider, null);
