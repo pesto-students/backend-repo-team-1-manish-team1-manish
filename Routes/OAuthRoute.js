@@ -19,7 +19,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.post("/register", async (req, res) => {
     const { name, firstName, lastName, email, phoneNo, password } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
         if (user) {
             return res.status(409).send({ message: "User already exist! Please Login." });
         }
@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -91,7 +91,7 @@ router.post("/login", async (req, res) => {
 router.post("/otp/send", async (req, res) => {
     const { email } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -115,7 +115,7 @@ router.post("/otp/send", async (req, res) => {
 router.post("/otp/validate", async (req, res) => {
     const { email, otp } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -141,7 +141,7 @@ router.post("/otp/reset", async (req, res) => {
     const { email, password } = req.body;
     const otp = req.cookies.otp ?? null;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
