@@ -5,7 +5,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const shortid = require("shortid");
 const Payment = require('../Models/PaymentModel');
-const sql = require("../DB/PostgresSql");
 require("dotenv").config();
 
 router.use(bodyParser.json());
