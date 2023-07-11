@@ -23,9 +23,9 @@ router.post("/register", async (req, res) => {
         if (user) {
             return res.status(409).send({ message: "User already exist! Please Login." });
         }
-        const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self', null);
+        const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self');
         jwt.sign(
-            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, auth_provider: newUser.auth_provider, phone_no: newUser.phone_no, bookmark_ids: newUser.bookmark_ids },
+            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, auth_provider: newUser.auth_provider },
             process.env.CLIENT_SECRET,
             { expiresIn: '120 min' },
             (err, token) => {

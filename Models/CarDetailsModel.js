@@ -161,9 +161,8 @@ CarDetails.getCarDetailsByPriceRangeBrandAndType = async (minPrice, maxPrice, br
 // Fetch all car brands
 CarDetails.getAllCarBrands = async () => {
     try {
-        return await sql`
-      SELECT DISTINCT Brand FROM car_details
-    `;
+        let query = sql`SELECT DISTINCT Brand FROM car_details`;
+        return await query;
     } catch (error) {
         console.error('Error getting all car brands:', error);
         throw error;
@@ -185,12 +184,11 @@ CarDetails.getCarModelsWithBrand = async () => {
 // Fetch car details based on optional query parameters
 CarDetails.getCarDetailsWithOptionalParameters = async (brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice) => {
     try {
-        let query = sql`
-      SELECT * FROM car_details WHERE 1=1
-      ${brands && brands.length > 0 ? sql` AND Brand IN (${brands})` : sql``}
+        let query = sql`SELECT * FROM car_details WHERE 1=1
+      ${brands && brands[0].length > 0 ? sql` AND Brand = ANY (${brands})` : sql``}
       ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
       ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
-      ${models && models.length > 0 ? sql` AND Model IN (${models})` : sql``}
+      ${models && models[0].length > 0 ? sql` AND Model = ANY (${models})` : sql``}
       ${year ? sql` AND Year = ${year}` : sql``}
       ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
       ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
@@ -210,7 +208,7 @@ CarDetails.getAvailableFuelTypes = async () => {
     try {
         return await sql`
         SELECT FuelType, COUNT(*) AS CarCount
-        FROM Car_Details
+        FROM car_details
         GROUP BY FuelType
       `;
     } catch (error) {
@@ -223,9 +221,9 @@ CarDetails.getAvailableFuelTypes = async () => {
 CarDetails.getAvailableCarTypes = async () => {
     try {
         return await sql`
-        SELECT CarType, COUNT(*) AS CarCount
+        SELECT Type, COUNT(*) AS CarCount
         FROM Car_Details
-        GROUP BY CarType
+        GROUP BY Type
       `;
     } catch (error) {
         console.error('Error fetching available car types:', error);
@@ -266,9 +264,9 @@ CarDetails.getAvailableOwnerships = async () => {
 CarDetails.getAvailableRTOOffices = async () => {
     try {
         return await sql`
-        SELECT NearestRTO, COUNT(*) AS CarCount
+        SELECT NearestRtoOffice, COUNT(*) AS CarCount
         FROM Car_Details
-        GROUP BY NearestRTO
+        GROUP BY NearestRtoOffice
       `;
     } catch (error) {
         console.error('Error fetching available RTO offices:', error);
