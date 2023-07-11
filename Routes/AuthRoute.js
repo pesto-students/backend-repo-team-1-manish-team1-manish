@@ -19,7 +19,7 @@ router.get("/login/success", async (req, res) => {
             if (!user) {
                 return res.status(404).send({ message: "User does not exist!" });
             }
-            return res.status(200).send(user[0])
+            return res.status(200).send(user);
         } catch (error) {
             console.error("Error while logging in:", error);
             res.status(500).send({ message: "Error occurred while logging in" });
@@ -46,7 +46,7 @@ router.get("/register/success", async (req, res) => {
             if (user) {
                 return res.status(409).send({ message: "User already exist! Please Login." });
             }
-            await User.create(name, firstName, lastName, email, phoneNo, null, authProvider, null);
+            await User.create(name, firstName, lastName, email, phoneNo, null, authProvider);
             res.status(201).send(req.authData);
         } catch (error) {
             console.error("Error while registering user:", error);
