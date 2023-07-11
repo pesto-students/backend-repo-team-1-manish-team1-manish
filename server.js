@@ -3,9 +3,9 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authMiddleware = require('./Middleware/AuthService');
 const userOAuthRouter = require('./Routes/OAuthRoute');
+const carsApiRouter = require('./Routes/CarsApiRoute');
 const carsRouter = require('./Routes/CarsRoute');
 const userAuthRouter = require('./Routes/AuthRoute');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const passport = require('passport');
 const cors = require('cors');
 const cookieSession = require('cookie-session');
@@ -33,19 +33,10 @@ app.use(
         allowedHeaders: "Content-type,Accept,Access-Control-Allow-Credentials,Access-Control-Allow-Origin"
     })
 );
-// Define the proxy route
-app.use(
-    '/carapi/trim',
-    createProxyMiddleware({
-        target: 'https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getTrims', // Replace with your API server URL
-        changeOrigin: true,
-        pathRewrite: {
-            '^/carapi/trim': '', // Remove the '/api' path prefix
-        },
-    })
-);
+
 app.use("/auth", userOAuthRouter);
 app.use("/cars", carsRouter);
+app.use("/cars-api", carsApiRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 
