@@ -86,7 +86,7 @@ router.get('/', async (req, res) => {
 });
 
 // Route to get car details by ID
-router.get('/:id', async (req, res) => {
+router.get('/ids/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -104,7 +104,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Route to update car details
-router.put('/:id', async (req, res) => {
+router.put('/ids/:id', async (req, res) => {
     const { id } = req.params;
     const {
         fuelType,
@@ -153,7 +153,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Route to delete car details
-router.delete('/:id', async (req, res) => {
+router.delete('/ids/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -172,7 +172,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Route to buy a car
-router.post('/:id/buy', async (req, res) => {
+router.post('/ids/:id/buy', async (req, res) => {
     const { id } = req.params;
     const { buyerId } = req.body;
 
@@ -247,7 +247,7 @@ router.get('/brands', async (req, res) => {
 });
 
 // Route to fetch car models with their brand
-router.get('/models', async (req, res) => {
+router.get('/models/', async (req, res) => {
     try {
         const carModels = await CarDetails.getCarModelsWithBrand();
         return res.status(200).json(carModels);
@@ -263,10 +263,10 @@ router.get('/search', async (req, res) => {
 
     try {
         const carDetails = await CarDetails.getCarDetailsWithOptionalParameters(
-            brands ? brands.split(',') : null,
+            brands ? [brands.split(',')] : null,
             minPrice,
             maxPrice,
-            models ? models.split(',') : null,
+            models ? [models.split(',')] : null,
             year,
             fuelType,
             kmDriven,
