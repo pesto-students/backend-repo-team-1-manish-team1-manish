@@ -58,6 +58,30 @@ User.getByEmail = async (email) => {
     }
 };
 
+// GET USER ORDERS
+User.getOrders = async (id) => {
+    try {
+        return (await sql`
+        SELECT 
+        id AS CarId, 
+        brand AS Brand, 
+        model AS Model, 
+        year AS Year,
+        CASE
+            WHEN buyerid = ${id} THEN 'Bought'
+            WHEN sellerid = ${id} THEN 'Sold'
+            ELSE 'Not involved'
+        END AS order_status
+        FROM car_details 
+        WHERE buyerid = ${id} 
+        OR sellerid = ${id}
+    `);
+    } catch (error) {
+        console.error('Error getting user by Email:', error);
+        throw error;
+    }
+};
+
 // UPDATE A USER
 User.update = async (email, name, firstName, lastName, phoneNo, authProvider, bookmarkIds) => {
     try {
@@ -114,5 +138,48 @@ User.delete = async (email) => {
         throw error;
     }
 };
+
+// CREATE/ADD BOOKMARKS 
+User.addBookmarks = async (id, bookmarkIds) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = COALESCE(bookmark_ids, '{}'::uuid[]) || ${bookmarkIds}
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error adding bookmarks:', error);
+        throw error;
+    }
+};
+
+// REMOVE BOOKMARK
+User.removeBookmarks = async (id, bookmarkIds) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = array_remove(bookmark_ids, ${bookmarkIds})
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error removing bookmarks:', error);
+        throw error;
+    }
+};
+
+//CLEAR BOOKMARK
+User.clearBookmarks = async (id) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = NULL
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error clearing bookmarks:', error);
+        throw error;
+    }
+};
+
 
 module.exports = User;
