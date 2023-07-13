@@ -78,10 +78,10 @@ router.get('/users/:id', async (req, res) => {
 // Route to update user profile
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, firstName, lastName, phoneNo, authProvider, bookmarkIds } = req.body;
+    const { name, firstName, lastName, phoneNo, authProvider } = req.body;
 
     try {
-        const updatedUser = await User.update(id, name, firstName, lastName, phoneNo, authProvider, bookmarkIds);
+        const updatedUser = await User.update(id, name, firstName, lastName, phoneNo, authProvider);
 
         if (updatedUser) {
             res.status(200).json(updatedUser);
@@ -131,7 +131,26 @@ router.get('/users/:id/orders', async (req, res) => {
     }
 });
 
-// Route to create bookmarks
+// Route to get user bookmarks
+router.get('/users/:id/bookmarks', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            const bookmarks = await User.getBookmarks(id);
+            res.status(200).json(bookmarks);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error getting user orders:', error);
+        res.status(500).json({ message: 'Error occurred while fetching orders' });
+    }
+});
+
+// Route to create wishlists
 router.post('/users/:id/bookmarks', async (req, res) => {
     const { id } = req.params;
     const { bookmarkIds } = req.body;

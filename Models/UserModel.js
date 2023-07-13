@@ -83,14 +83,13 @@ User.getOrders = async (id) => {
 };
 
 // UPDATE A USER
-User.update = async (email, name, firstName, lastName, phoneNo, authProvider, bookmarkIds) => {
+User.update = async (email, name, firstName, lastName, phoneNo, authProvider) => {
     try {
         let query = sql`UPDATE users SET name = ${name}
         ${firstName ? sql`, first_name = ${firstName}` : sql``}
         ${lastName ? sql`, last_name = ${lastName}` : sql``}
         ${phoneNo ? sql`, phone_no = ${phoneNo}` : sql``}
         ${authProvider ? sql`, auth_provider = ${authProvider}` : sql``}
-        ${bookmarkIds ? sql`, bookmark_ids = ${bookmarkIds}` : sql``}
         WHERE email = ${email}
         `;
 
@@ -139,12 +138,25 @@ User.delete = async (email) => {
     }
 };
 
+// GET BOOKMARKS 
+User.getBookmarks = async (id) => {
+    try {
+        return await sql`
+        SELECT bookmark_ids from users
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        throw error;
+    }
+};
+
 // CREATE/ADD BOOKMARKS 
 User.addBookmarks = async (id, bookmarkIds) => {
     try {
         return await sql`
         UPDATE users
-        SET bookmark_ids = COALESCE(bookmark_ids, '{}'::uuid[]) || ${bookmarkIds}
+        SET bookmark_ids = COALESCE(bookmark_ids, '{}'::uuid[]) || ${sql.array(bookmarkIds, 'uuid')}
         WHERE id = ${id};
       `;
     } catch (error) {
