@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
         if (isPasswordValid) {
             // If password validation is successful, generate the token using the signToken function
             jwt.sign(
-                { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider, phone_no: user.phone_no, bookmark_ids: user.bookmark_ids },
+                { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
                 { expiresIn: '120 min' },
                 (err, token) => {

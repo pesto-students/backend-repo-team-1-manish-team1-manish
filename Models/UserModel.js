@@ -58,15 +58,38 @@ User.getByEmail = async (email) => {
     }
 };
 
+// GET USER ORDERS
+User.getOrders = async (id) => {
+    try {
+        return (await sql`
+        SELECT 
+        id AS CarId, 
+        brand AS Brand, 
+        model AS Model, 
+        year AS Year,
+        CASE
+            WHEN buyerid = ${id} THEN 'Bought'
+            WHEN sellerid = ${id} THEN 'Sold'
+            ELSE 'Not involved'
+        END AS order_status
+        FROM car_details 
+        WHERE buyerid = ${id} 
+        OR sellerid = ${id}
+    `);
+    } catch (error) {
+        console.error('Error getting user by Email:', error);
+        throw error;
+    }
+};
+
 // UPDATE A USER
-User.update = async (email, name, firstName, lastName, phoneNo, authProvider, bookmarkIds) => {
+User.update = async (email, name, firstName, lastName, phoneNo, authProvider) => {
     try {
         let query = sql`UPDATE users SET name = ${name}
         ${firstName ? sql`, first_name = ${firstName}` : sql``}
         ${lastName ? sql`, last_name = ${lastName}` : sql``}
         ${phoneNo ? sql`, phone_no = ${phoneNo}` : sql``}
         ${authProvider ? sql`, auth_provider = ${authProvider}` : sql``}
-        ${bookmarkIds ? sql`, bookmark_ids = ${bookmarkIds}` : sql``}
         WHERE email = ${email}
         `;
 
@@ -111,6 +134,69 @@ User.delete = async (email) => {
     `;
     } catch (error) {
         console.error('Error deleting user:', error);
+        throw error;
+    }
+};
+
+// GET BOOKMARKS 
+User.getBookmarks = async (id) => {
+    try {
+        return (await sql`
+        SELECT bookmark_ids from users
+        WHERE id = ${id};
+      `)[0];
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        throw error;
+    }
+};
+
+// CREATE/ADD BOOKMARKS 
+User.addBookmarks = async (id, bookmarkId) => {
+    try {
+        const query = sql`
+            UPDATE users
+            SET bookmark_ids = 
+                CASE
+                    WHEN bookmark_ids IS NULL 
+                        THEN ${sql.array(bookmarkId)}
+                    ELSE array_cat(bookmark_ids, ${sql.array(bookmarkId)})
+                END
+            WHERE id = ${id};
+          `;
+        return await query;
+    } catch (error) {
+        console.error('Error adding bookmarks:', error);
+        throw error;
+    }
+};
+// REMOVE BOOKMARK
+User.removeBookmarks = async (id, bookmarkIds) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = CASE
+            WHEN array_length(bookmark_ids, 1) = 1
+                THEN NULL
+            ELSE array_remove(bookmark_ids, ${bookmarkIds})
+            END
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error removing bookmarks:', error);
+        throw error;
+    }
+};
+//CLEAR BOOKMARK
+User.clearBookmarks = async (id) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = NULL
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error clearing bookmarks:', error);
         throw error;
     }
 };
