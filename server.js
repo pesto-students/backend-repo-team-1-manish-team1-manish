@@ -42,5 +42,6 @@ app.use("/cars", carsRouter);
 app.use("/cars-api", carsApiRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
-
+const callbackURL = process.env.CALLBACK_URL;
+console.log(callbackURL);
 app.listen(port, () => console.log("server running on port" + port));
