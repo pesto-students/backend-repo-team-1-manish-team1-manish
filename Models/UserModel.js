@@ -141,10 +141,10 @@ User.delete = async (email) => {
 // GET BOOKMARKS 
 User.getBookmarks = async (id) => {
     try {
-        return await sql`
+        return (await sql`
         SELECT bookmark_ids from users
         WHERE id = ${id};
-      `;
+      `)[0];
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
         throw error;
@@ -153,7 +153,6 @@ User.getBookmarks = async (id) => {
 
 // CREATE/ADD BOOKMARKS 
 User.addBookmarks = async (id, bookmarkId) => {
-    console.log(id, bookmarkId);
     try {
         const query = sql`
             UPDATE users

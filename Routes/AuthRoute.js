@@ -145,21 +145,21 @@ router.get('/users/:id/bookmarks', async (req, res) => {
             res.status(404).json({ message: 'User not found' });
         }
     } catch (error) {
-        console.error('Error getting user orders:', error);
-        res.status(500).json({ message: 'Error occurred while fetching orders' });
+        console.error('Error getting user bookmarks:', error);
+        res.status(500).json({ message: 'Error occurred while fetching bookmarks' });
     }
 });
 
 // Route to create wishlists
 router.post('/users/:id/bookmarks', async (req, res) => {
     const { id } = req.params;
-    const { bookmarkIds } = req.body;
+    const { bookmarkId } = req.body;
 
     try {
         const user = await User.getById(id);
 
         if (user) {
-            await User.addBookmarks(id, bookmarkIds);
+            await User.addBookmarks(id, bookmarkId);
             res.status(200).json({ message: 'Bookmarks created successfully' });
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -173,13 +173,12 @@ router.post('/users/:id/bookmarks', async (req, res) => {
 // Route to remove bookmark IDs
 router.delete('/users/:id/bookmarks', async (req, res) => {
     const { id } = req.params;
-    const { bookmarkIds } = req.body;
-
+    const { bookmarkId } = req.body;
     try {
         const user = await User.getById(id);
 
         if (user) {
-            await User.removeBookmarks(id, bookmarkIds);
+            await User.removeBookmarks(id, bookmarkId);
             res.status(200).json({ message: 'Bookmark IDs removed successfully' });
         } else {
             res.status(404).json({ message: 'User not found' });

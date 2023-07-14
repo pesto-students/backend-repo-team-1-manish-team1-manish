@@ -323,7 +323,7 @@ CarDetails.getCarDetailsById = async (id) => {
         FualCapacity: result[0].fualcapacity,
         RegistrationYear: result[0].registrationyear,
         Engine: result[0].engine,
-        Variant: result[0].variant,
+        Variant: result[0].variant.substring(0, result[0].variant.indexOf('(')),
         Ownership: result[0].ownership,
         KmDriven: result[0].kmdriven,
         Transmission: result[0].transmission,
