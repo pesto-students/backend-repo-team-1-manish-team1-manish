@@ -138,4 +138,68 @@ User.delete = async (email) => {
     }
 };
 
+// GET BOOKMARKS 
+User.getBookmarks = async (id) => {
+    try {
+        return await sql`
+        SELECT bookmark_ids from users
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        throw error;
+    }
+};
+
+// CREATE/ADD BOOKMARKS 
+User.addBookmarks = async (id, bookmarkId) => {
+    console.log(id, bookmarkId);
+    try {
+        const query = sql`
+            UPDATE users
+            SET bookmark_ids = 
+                CASE
+                    WHEN bookmark_ids IS NULL 
+                        THEN ${sql.array(bookmarkId)}
+                    ELSE array_cat(bookmark_ids, ${sql.array(bookmarkId)})
+                END
+            WHERE id = ${id};
+          `;
+        return await query;
+    } catch (error) {
+        console.error('Error adding bookmarks:', error);
+        throw error;
+    }
+};
+// REMOVE BOOKMARK
+User.removeBookmarks = async (id, bookmarkIds) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = CASE
+            WHEN array_length(bookmark_ids, 1) = 1
+                THEN NULL
+            ELSE array_remove(bookmark_ids, ${bookmarkIds})
+            END
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error removing bookmarks:', error);
+        throw error;
+    }
+};
+//CLEAR BOOKMARK
+User.clearBookmarks = async (id) => {
+    try {
+        return await sql`
+        UPDATE users
+        SET bookmark_ids = NULL
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+        console.error('Error clearing bookmarks:', error);
+        throw error;
+    }
+};
+
 module.exports = User;
