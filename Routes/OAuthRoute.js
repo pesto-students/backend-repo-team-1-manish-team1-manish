@@ -19,13 +19,13 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.post("/register", async (req, res) => {
     const { name, firstName, lastName, email, phoneNo, password } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
         if (user) {
             return res.status(409).send({ message: "User already exist! Please Login." });
         }
-        const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self', null);
+        const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self');
         jwt.sign(
-            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, auth_provider: newUser.auth_provider, phone_no: newUser.phone_no, bookmark_ids: newUser.bookmark_ids },
+            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, auth_provider: newUser.auth_provider },
             process.env.CLIENT_SECRET,
             { expiresIn: '120 min' },
             (err, token) => {
@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
         if (isPasswordValid) {
             // If password validation is successful, generate the token using the signToken function
             jwt.sign(
-                { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider, phone_no: user.phone_no, bookmark_ids: user.bookmark_ids },
+                { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
                 { expiresIn: '120 min' },
                 (err, token) => {
@@ -91,7 +91,7 @@ router.post("/login", async (req, res) => {
 router.post("/otp/send", async (req, res) => {
     const { email } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -115,7 +115,7 @@ router.post("/otp/send", async (req, res) => {
 router.post("/otp/validate", async (req, res) => {
     const { email, otp } = req.body;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
@@ -141,7 +141,7 @@ router.post("/otp/reset", async (req, res) => {
     const { email, password } = req.body;
     const otp = req.cookies.otp ?? null;
     try {
-        const user = (await User.getByEmail(email))[0];
+        const user = (await User.getByEmail(email));
 
         if (!user) {
             return res.status(404).send({ message: "User does not exist!" });
