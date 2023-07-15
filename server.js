@@ -45,5 +45,4 @@ app.use("/cars-api", carsApiRouter);
 app.use("/auth", userOAuthRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
-console.log(process.env.NODE_ENV);
 app.listen(port, () => console.log("server running on port" + port));
