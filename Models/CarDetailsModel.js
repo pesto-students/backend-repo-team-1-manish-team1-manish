@@ -197,15 +197,16 @@ CarDetails.getCarModelsWithBrand = async () => {
 };
 
 // Fetch car details based on optional query parameters
-CarDetails.getCarDetailsWithOptionalParameters = async (brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice) => {
+CarDetails.getCarDetailsWithOptionalParameters = async (brands, minPrice, maxPrice, type, year, fuelType, kmDriven, transmission, nearestRtoOffice, ownership) => {
   try {
     let query = sql`SELECT * FROM car_details WHERE 1=1
       ${brands && brands[0].length > 0 ? sql` AND Brand = ANY (${brands})` : sql``}
       ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
       ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
-      ${models && models[0].length > 0 ? sql` AND Model = ANY (${models})` : sql``}
+      ${type && type[0].length > 0 ? sql` AND type = ANY (${type})` : sql``}
       ${year ? sql` AND Year = ${year}` : sql``}
-      ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
+      ${fuelType && fuelType[0].length > 0 ? sql` AND Fueltype = ANY (${fuelType})` : sql``}
+      ${ownership && ownership[0].length > 0 ? sql` AND ownership = ANY (${ownership})` : sql``}
       ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
       ${transmission ? sql` AND Transmission = ${transmission}` : sql``}
       ${nearestRtoOffice
