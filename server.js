@@ -35,10 +35,10 @@ app.use(
 );
 
 app.use("/auth", userOAuthRouter);
-app.use(authMiddleware.verifyToken);
-app.use("/auth", userAuthRouter);
 app.use("/cars", carsRouter);
 app.use("/cars-api", carsApiRouter);
+app.use(authMiddleware.verifyToken);
+app.use("/auth", userAuthRouter);
 
 
 app.listen(port, () => console.log("server running on port" + port))

@@ -259,19 +259,19 @@ router.get('/models/', async (req, res) => {
 
 // Route to fetch car details based on optional query parameters
 router.get('/search', async (req, res) => {
-  const { brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice } = req.query;
-
+  const { brands, minPrice, maxPrice, type, year, fuelType, kmDriven, transmission, nearestRtoOffice, ownership } = req.query;
   try {
     const carDetails = await CarDetails.getCarDetailsWithOptionalParameters(
       brands ? [brands.split(',')] : null,
       minPrice,
       maxPrice,
-      models ? [models.split(',')] : null,
+      type ? [type.split(',')] : null,
       year,
-      fuelType,
+      fuelType ? [fuelType.split(',')] : null,
       kmDriven,
       transmission,
-      nearestRtoOffice
+      nearestRtoOffice,
+      ownership ? [ownership.split(',')] : null
     );
     return res.json(carDetails);
   } catch (error) {
