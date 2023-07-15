@@ -249,12 +249,13 @@ CarDetails.getCarDetailsWithOptionalParameters = async (
   brands,
   minPrice,
   maxPrice,
-  models,
+  type,
   year,
   fuelType,
   kmDriven,
   transmission,
-  nearestRtoOffice
+  nearestRtoOffice,
+  ownership
 ) => {
   try {
     let query = sql`SELECT * FROM car_details WHERE 1=1
@@ -265,13 +266,18 @@ CarDetails.getCarDetailsWithOptionalParameters = async (
       }
       ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
       ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
+      ${type && type[0].length > 0 ? sql` AND type = ANY (${type})` : sql``}
+      ${year ? sql` AND Year = ${year}` : sql``}
       ${
-        models && models[0].length > 0
-          ? sql` AND Model = ANY (${models})`
+        fuelType && fuelType[0].length > 0
+          ? sql` AND Fueltype = ANY (${fuelType})`
           : sql``
       }
-      ${year ? sql` AND Year = ${year}` : sql``}
-      ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
+      ${
+        ownership && ownership[0].length > 0
+          ? sql` AND ownership = ANY (${ownership})`
+          : sql``
+      }
       ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
       ${transmission ? sql` AND Transmission = ${transmission}` : sql``}
       ${
