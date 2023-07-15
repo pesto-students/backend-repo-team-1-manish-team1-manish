@@ -3,17 +3,45 @@ const sql = require("../DB/PostgresSql");
 const CarDetails = {};
 
 // CREATE CAR DETAILS
-CarDetails.create = async (brand, year, model, fuelType, fuelCapacity, registrationYear, engine, variant, ownership, kmDriven, transmission, transmissionShort, insurance, pinCode, registrationState, city, registrationNumber, sellerId, buyerId, nearestRtoOffice, price, type, tags, images, carApiId) => {
+CarDetails.create = async (
+  brand,
+  year,
+  model,
+  fuelType,
+  fuelCapacity,
+  registrationYear,
+  engine,
+  variant,
+  ownership,
+  kmDriven,
+  transmission,
+  transmissionShort,
+  insurance,
+  pinCode,
+  registrationState,
+  city,
+  registrationNumber,
+  sellerId,
+  buyerId,
+  nearestRtoOffice,
+  price,
+  type,
+  tags,
+  images,
+  carApiId
+) => {
   try {
     await sql`
-      INSERT INTO car_details (Id, Brand, Year, Model, FualType, FualCapacity, RegistrationYear, Engine, Variant, Ownership, KmDriven, Transmission, TransmissionShort, Insaurance, PinCode, RegistrationState, City, RegistrationNumber, SellerId, BuyerId, NearestRtoOffice, Price, Type, Tags, Images, carApiId)
+      INSERT INTO car_details (Id, Brand, Year, Model, FuelType, FualCapacity, RegistrationYear, Engine, Variant, Ownership, KmDriven, Transmission, TransmissionShort, Insaurance, PinCode, RegistrationState, City, RegistrationNumber, SellerId, BuyerId, NearestRtoOffice, Price, Type, Tags, Images, carApiId)
       VALUES (gen_random_uuid(), ${brand}, ${year}, ${model}, ${fuelType}, ${fuelCapacity}, ${registrationYear}, ${engine}, ${variant}, ${ownership}, ${kmDriven}, ${transmission}, ${transmissionShort}, ${insurance}, ${pinCode}, ${registrationState}, ${city}, ${registrationNumber}, ${sellerId}, ${buyerId}, ${nearestRtoOffice}, ${price}, ${type}, ${tags}, ${images}, ${carApiId})
     `;
 
-    const newCarDetails = await CarDetails.getByRegistrationNumber(registrationNumber);
+    const newCarDetails = await CarDetails.getByRegistrationNumber(
+      registrationNumber
+    );
     return newCarDetails;
   } catch (error) {
-    console.error('Error creating car details:', error);
+    console.error("Error creating car details:", error);
     throw error;
   }
 };
@@ -25,7 +53,7 @@ CarDetails.get = async () => {
       SELECT * FROM car_details
     `;
   } catch (error) {
-    console.error('Error getting car details:', error);
+    console.error("Error getting car details:", error);
     throw error;
   }
 };
@@ -33,11 +61,13 @@ CarDetails.get = async () => {
 // GET CAR DETAILS BY ID
 CarDetails.getById = async (id) => {
   try {
-    return (await sql`
+    return (
+      await sql`
       SELECT * FROM car_details WHERE Id = ${id}
-    `)[0];
+    `
+    )[0];
   } catch (error) {
-    console.error('Error getting car details by ID:', error);
+    console.error("Error getting car details by ID:", error);
     throw error;
   }
 };
@@ -45,11 +75,13 @@ CarDetails.getById = async (id) => {
 // GET CAR DETAILS BY REGISTRATION NUMBER
 CarDetails.getByRegistrationNumber = async (registrationNumber) => {
   try {
-    return (await sql`
+    return (
+      await sql`
       SELECT * FROM car_details WHERE RegistrationNumber = ${registrationNumber}
-    `)[0];
+    `
+    )[0];
   } catch (error) {
-    console.error('Error getting car details by registration number:', error);
+    console.error("Error getting car details by registration number:", error);
     throw error;
   }
 };
@@ -69,43 +101,48 @@ CarDetails.update = async (
     registrationState,
     registrationNumber,
     nearestRtoOffice,
-    images
+    images,
   } = {}
 ) => {
   try {
     let query = sql`UPDATE car_details SET Id = ${id}
         ${fuelType ? sql`, FualType = ${fuelType}` : sql``}
         ${fuelCapacity ? sql`, FualCapacity = ${fuelCapacity}` : sql``}
-        ${registrationYear
-        ? sql`, RegistrationYear = ${registrationYear}`
-        : sql``
-      }
+        ${
+          registrationYear
+            ? sql`, RegistrationYear = ${registrationYear}`
+            : sql``
+        }
         ${ownership ? sql`, Ownership = ${ownership}` : sql``}
         ${kmDriven ? sql`, KmDriven = ${kmDriven}` : sql``}
         ${transmission ? sql`, Transmission = ${transmission}` : sql``}
-        ${transmissionShort
-        ? sql`, TransmissionShort = ${transmissionShort}`
-        : sql``
-      }
+        ${
+          transmissionShort
+            ? sql`, TransmissionShort = ${transmissionShort}`
+            : sql``
+        }
         ${insurance ? sql`, Insaurance = ${insurance}` : sql``}
-        ${registrationState
-        ? sql`, RegistrationState = ${registrationState}`
-        : sql``
-      }
-        ${registrationNumber
-        ? sql`, RegistrationNumber = ${registrationNumber}`
-        : sql``
-      }
-        ${nearestRtoOffice
-        ? sql`, NearestRtoOffice = ${nearestRtoOffice}`
-        : sql``
-      }
+        ${
+          registrationState
+            ? sql`, RegistrationState = ${registrationState}`
+            : sql``
+        }
+        ${
+          registrationNumber
+            ? sql`, RegistrationNumber = ${registrationNumber}`
+            : sql``
+        }
+        ${
+          nearestRtoOffice
+            ? sql`, NearestRtoOffice = ${nearestRtoOffice}`
+            : sql``
+        }
         ${images ? sql`, Images = ${images}` : sql``}
         WHERE Id = ${id}
         `;
     return await query;
   } catch (error) {
-    console.error('Error updating car details:', error);
+    console.error("Error updating car details:", error);
     throw error;
   }
 };
@@ -117,11 +154,10 @@ CarDetails.delete = async (id) => {
       DELETE FROM car_details WHERE Id = ${id}
     `;
   } catch (error) {
-    console.error('Error deleting car details:', error);
+    console.error("Error deleting car details:", error);
     throw error;
   }
 };
-
 
 // BUY CAR
 CarDetails.buy = async (id, buyerId) => {
@@ -132,7 +168,7 @@ CarDetails.buy = async (id, buyerId) => {
 
     return await query;
   } catch (error) {
-    console.error('Error buying car:', error);
+    console.error("Error buying car:", error);
     throw error;
   }
 };
@@ -144,31 +180,43 @@ CarDetails.getBrandsByPriceRange = async (minPrice, maxPrice) => {
       SELECT DISTINCT Brand FROM car_details WHERE Price >= ${minPrice} AND Price <= ${maxPrice}
     `;
   } catch (error) {
-    console.error('Error getting car brands by price range:', error);
+    console.error("Error getting car brands by price range:", error);
     throw error;
   }
 };
 
 // Fetch car types by price range and brand
-CarDetails.getCarTypesByPriceRangeAndBrand = async (minPrice, maxPrice, brand) => {
+CarDetails.getCarTypesByPriceRangeAndBrand = async (
+  minPrice,
+  maxPrice,
+  brand
+) => {
   try {
     return await sql`
       SELECT DISTINCT Type FROM car_details WHERE Price >= ${minPrice} AND Price <= ${maxPrice} AND Brand = ${brand}
     `;
   } catch (error) {
-    console.error('Error getting car types by price range and brand:', error);
+    console.error("Error getting car types by price range and brand:", error);
     throw error;
   }
 };
 
 // Fetch car details by price range, brand, and car type
-CarDetails.getCarDetailsByPriceRangeBrandAndType = async (minPrice, maxPrice, brand, type) => {
+CarDetails.getCarDetailsByPriceRangeBrandAndType = async (
+  minPrice,
+  maxPrice,
+  brand,
+  type
+) => {
   try {
     return await sql`
       SELECT * FROM car_details WHERE Price >= ${minPrice} AND Price <= ${maxPrice} AND Brand = ${brand} AND Type = ${type}
     `;
   } catch (error) {
-    console.error('Error getting car details by price range, brand, and type:', error);
+    console.error(
+      "Error getting car details by price range, brand, and type:",
+      error
+    );
     throw error;
   }
 };
@@ -179,7 +227,7 @@ CarDetails.getAllCarBrands = async () => {
     let query = sql`SELECT DISTINCT Brand FROM car_details`;
     return await query;
   } catch (error) {
-    console.error('Error getting all car brands:', error);
+    console.error("Error getting all car brands:", error);
     throw error;
   }
 };
@@ -191,32 +239,51 @@ CarDetails.getCarModelsWithBrand = async () => {
       SELECT Brand, Model FROM car_details
     `;
   } catch (error) {
-    console.error('Error getting car models with brand:', error);
+    console.error("Error getting car models with brand:", error);
     throw error;
   }
 };
 
 // Fetch car details based on optional query parameters
-CarDetails.getCarDetailsWithOptionalParameters = async (brands, minPrice, maxPrice, models, year, fuelType, kmDriven, transmission, nearestRtoOffice) => {
+CarDetails.getCarDetailsWithOptionalParameters = async (
+  brands,
+  minPrice,
+  maxPrice,
+  models,
+  year,
+  fuelType,
+  kmDriven,
+  transmission,
+  nearestRtoOffice
+) => {
   try {
     let query = sql`SELECT * FROM car_details WHERE 1=1
-      ${brands && brands[0].length > 0 ? sql` AND Brand = ANY (${brands})` : sql``}
+      ${
+        brands && brands[0].length > 0
+          ? sql` AND Brand = ANY (${brands})`
+          : sql``
+      }
       ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
       ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
-      ${models && models[0].length > 0 ? sql` AND Model = ANY (${models})` : sql``}
+      ${
+        models && models[0].length > 0
+          ? sql` AND Model = ANY (${models})`
+          : sql``
+      }
       ${year ? sql` AND Year = ${year}` : sql``}
       ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
       ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
       ${transmission ? sql` AND Transmission = ${transmission}` : sql``}
-      ${nearestRtoOffice
-        ? sql` AND NearestRtoOffice = ${nearestRtoOffice}`
-        : sql``
+      ${
+        nearestRtoOffice
+          ? sql` AND NearestRtoOffice = ${nearestRtoOffice}`
+          : sql``
       }
       `;
 
     return await query;
   } catch (error) {
-    console.error('Error getting car details with optional parameters:', error);
+    console.error("Error getting car details with optional parameters:", error);
     throw error;
   }
 };
@@ -230,7 +297,7 @@ CarDetails.getAvailableFuelTypes = async () => {
         GROUP BY FuelType
       `;
   } catch (error) {
-    console.error('Error fetching available car fuel types:', error);
+    console.error("Error fetching available car fuel types:", error);
     throw error;
   }
 };
@@ -244,7 +311,7 @@ CarDetails.getAvailableCarTypes = async () => {
         GROUP BY Type
       `;
   } catch (error) {
-    console.error('Error fetching available car types:', error);
+    console.error("Error fetching available car types:", error);
     throw error;
   }
 };
@@ -259,7 +326,7 @@ CarDetails.getTransmissionCount = async () => {
         GROUP BY Transmission
       `;
   } catch (error) {
-    console.error('Error fetching car transmission count:', error);
+    console.error("Error fetching car transmission count:", error);
     throw error;
   }
 };
@@ -273,7 +340,7 @@ CarDetails.getAvailableOwnerships = async () => {
         GROUP BY Ownership
       `;
   } catch (error) {
-    console.error('Error fetching available ownerships:', error);
+    console.error("Error fetching available ownerships:", error);
     throw error;
   }
 };
@@ -287,7 +354,7 @@ CarDetails.getAvailableRTOOffices = async () => {
         GROUP BY NearestRtoOffice
       `;
   } catch (error) {
-    console.error('Error fetching available RTO offices:', error);
+    console.error("Error fetching available RTO offices:", error);
     throw error;
   }
 };
@@ -312,8 +379,8 @@ CarDetails.getCarDetailsById = async (id) => {
   LEFT JOIN car_data AS cd2 ON cd1.carapiid = cd2.id
   WHERE cd1.id = ${id}
   `;
-  const { carOverview, carFeatures, carSpecifications } = await query1
-    .then((result) => {
+  const { carOverview, carFeatures, carSpecifications } = await query1.then(
+    (result) => {
       const carOverview = {
         Id: result[0].id,
         Brand: result[0].brand,
@@ -323,7 +390,7 @@ CarDetails.getCarDetailsById = async (id) => {
         FualCapacity: result[0].fualcapacity,
         RegistrationYear: result[0].registrationyear,
         Engine: result[0].engine,
-        Variant: result[0].variant.substring(0, result[0].variant.indexOf('(')),
+        Variant: result[0].variant.substring(0, result[0].variant.indexOf("(")),
         Ownership: result[0].ownership,
         KmDriven: result[0].kmdriven,
         Transmission: result[0].transmission,
@@ -340,47 +407,50 @@ CarDetails.getCarDetailsById = async (id) => {
         Type: result[0].type,
         Tags: result[0].tags,
         Images: result[0].images,
-        carApiId: result[0].carapiid
-      }
+        carApiId: result[0].carapiid,
+      };
 
       // Map the fetched data to the CarSpecifications object
       const carSpecifications = {
         id: result[0]["ModelId"],
         "Max Power (bhp)": result[0]["Max Power (bhp)"],
-        "Engine": result[0]["Engine"],
-        "Torque": result[0]["Torque"],
-        "Seats": result[0]["Seats"] ? result[0]["Seats"] : '4',
+        Engine: result[0]["Engine"],
+        Torque: result[0]["Torque"],
+        Seats: result[0]["Seats"] ? result[0]["Seats"] : "4",
         "Displacement (cc)": result[0]["Displacement (cc)"],
         "Brake Type (rear)": result[0]["Brake Type (rear)"],
         "Brake Type (front)": result[0]["Brake Type (front)"],
-        "Cylinders": result[0]["Cylinders"],
-        "Max Power (rpm)": result[0]["Max Power (rpm)"] ? result[0]["Max Power (rpm)"] : 'NA',
+        Cylinders: result[0]["Cylinders"],
+        "Max Power (rpm)": result[0]["Max Power (rpm)"]
+          ? result[0]["Max Power (rpm)"]
+          : "NA",
         "Emission Standard": result[0]["Emission Standard"],
         "Fuel Tank Capacity": result[0]["Fuel Tank Capacity"],
         "Body Type": result[0]["Body Type"],
-        "Boot Space (Litres)": result[0]["Boot Space (Litres)"]
+        "Boot Space (Litres)": result[0]["Boot Space (Litres)"],
       };
 
       // Map the missing data in CarFeatures object
       const carFeatures = {
         id: result[0]["ModelId"],
         "Power Steering": true,
-        "Heater": true,
+        Heater: true,
         "Anti lock Braking System": true,
         "Power Window Front": true,
         "Adjustable Head Lights": true,
         "Central Locking": true,
         "Air Conditioning": true,
         "Fog Lights Front": true,
-        "Radio": true,
+        Radio: true,
         "Fog Lights - Rear": false,
         "Cruise Control": true,
-        "Automatic Climate Control": false
+        "Automatic Climate Control": false,
       };
       return { carOverview, carFeatures, carSpecifications };
-    });
+    }
+  );
 
   return { carOverview, carFeatures, carSpecifications };
-}
+};
 
 module.exports = CarDetails;
