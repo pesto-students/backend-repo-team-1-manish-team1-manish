@@ -40,9 +40,9 @@ app.use(
   })
 );
 
-app.use("/auth", userOAuthRouter);
 app.use("/cars", carsRouter);
 app.use("/cars-api", carsApiRouter);
+app.use("/auth", userOAuthRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 

@@ -32,7 +32,7 @@ CarDetails.create = async (
 ) => {
   try {
     await sql`
-      INSERT INTO car_details (Id, Brand, Year, Model, FualType, FualCapacity, RegistrationYear, Engine, Variant, Ownership, KmDriven, Transmission, TransmissionShort, Insaurance, PinCode, RegistrationState, City, RegistrationNumber, SellerId, BuyerId, NearestRtoOffice, Price, Type, Tags, Images, carApiId)
+      INSERT INTO car_details (Id, Brand, Year, Model, FuelType, FualCapacity, RegistrationYear, Engine, Variant, Ownership, KmDriven, Transmission, TransmissionShort, Insaurance, PinCode, RegistrationState, City, RegistrationNumber, SellerId, BuyerId, NearestRtoOffice, Price, Type, Tags, Images, carApiId)
       VALUES (gen_random_uuid(), ${brand}, ${year}, ${model}, ${fuelType}, ${fuelCapacity}, ${registrationYear}, ${engine}, ${variant}, ${ownership}, ${kmDriven}, ${transmission}, ${transmissionShort}, ${insurance}, ${pinCode}, ${registrationState}, ${city}, ${registrationNumber}, ${sellerId}, ${buyerId}, ${nearestRtoOffice}, ${price}, ${type}, ${tags}, ${images}, ${carApiId})
     `;
 
@@ -249,22 +249,35 @@ CarDetails.getCarDetailsWithOptionalParameters = async (
   brands,
   minPrice,
   maxPrice,
-  models,
+  type,
   year,
   fuelType,
   kmDriven,
   transmission,
-  nearestRtoOffice
+  nearestRtoOffice,
+  ownership
 ) => {
-  //   console.log(brands, minPrice, maxPrice, models);
   try {
     let query = sql`SELECT * FROM car_details WHERE 1=1
-      ${brands && brands[0].length > 0 ? sql` AND Brand =  (${brands})` : sql``}
+      ${
+        brands && brands[0].length > 0
+          ? sql` AND Brand = ANY (${brands})`
+          : sql``
+      }
       ${minPrice ? sql` AND Price >= ${minPrice}` : sql``}
       ${maxPrice ? sql` AND Price <= ${maxPrice}` : sql``}
-      ${models && models[0].length > 0 ? sql` AND Model =  (${models})` : sql``}
+      ${type && type[0].length > 0 ? sql` AND type = ANY (${type})` : sql``}
       ${year ? sql` AND Year = ${year}` : sql``}
-      ${fuelType ? sql` AND FualType = ${fuelType}` : sql``}
+      ${
+        fuelType && fuelType[0].length > 0
+          ? sql` AND Fueltype = ANY (${fuelType})`
+          : sql``
+      }
+      ${
+        ownership && ownership[0].length > 0
+          ? sql` AND ownership = ANY (${ownership})`
+          : sql``
+      }
       ${kmDriven ? sql` AND KmDriven = ${kmDriven}` : sql``}
       ${transmission ? sql` AND Transmission = ${transmission}` : sql``}
       ${
@@ -273,7 +286,6 @@ CarDetails.getCarDetailsWithOptionalParameters = async (
           : sql``
       }
       `;
-    // console.log(query);
     return await query;
   } catch (error) {
     console.error("Error getting car details with optional parameters:", error);
@@ -350,6 +362,100 @@ CarDetails.getAvailableRTOOffices = async () => {
     console.error("Error fetching available RTO offices:", error);
     throw error;
   }
+};
+
+// GET CAR DETAILS
+CarDetails.getCarDetailsById = async (id) => {
+  const query1 = sql`
+  SELECT cd1.id, cd1.brand, cd1.year, cd1.model, cd1.fueltype,
+    cd1.fualcapacity, cd1.registrationyear, cd1.registrationstate, 
+    cd1.engine, cd1.variant, cd1.ownership, cd1.kmdriven, cd1.transmission,
+    cd1.transmissionshort, cd1.insaurance, cd1.pincode, cd1.registrationnumber,
+    cd1.city, cd1.sellerid, cd1.buyerid, cd1.nearestrtooffice, cd1.price, cd1.type,
+    cd1.tags, cd1.images, cd1.carapiid,
+    cd2.id AS "ModelId", cd2.engine_power_ps AS "Max Power (bhp)",
+    cd2.engine_cc AS "Engine", cd2.engine_torque_nm AS "Torque",
+    cd2.seats AS "Seats", cd2.engine_cc AS "Displacement (cc)",
+    'Drum' AS "Brake Type (rear)", 'Disc' AS "Brake Type (front)",
+    cd2.engine_cyl AS "Cylinders", cd2.engine_power_rpm AS "Max Power (rpm)",
+    'BSVI' AS "Emission Standard", cd2.fuel_cap_l AS "Fuel Tank Capacity",
+    cd2.body AS "Body Type", 506 AS "Boot Space (Litres)"
+  FROM car_details AS cd1
+  LEFT JOIN car_data AS cd2 ON cd1.carapiid = cd2.id
+  WHERE cd1.id = ${id}
+  `;
+  const { carOverview, carFeatures, carSpecifications } = await query1.then(
+    (result) => {
+      const carOverview = {
+        Id: result[0].id,
+        Brand: result[0].brand,
+        Year: result[0].year,
+        Model: result[0].model,
+        FualType: result[0].fueltype,
+        FualCapacity: result[0].fualcapacity,
+        RegistrationYear: result[0].registrationyear,
+        Engine: result[0].engine,
+        Variant: result[0].variant.substring(0, result[0].variant.indexOf("(")),
+        Ownership: result[0].ownership,
+        KmDriven: result[0].kmdriven,
+        Transmission: result[0].transmission,
+        TransmissionShort: result[0].transmissionshort,
+        Insaurance: result[0].insaurance,
+        PinCode: result[0].pincode,
+        RegistrationState: result[0].registrationstate,
+        City: result[0].city,
+        RegistrationNumber: result[0].registrationnumber,
+        SellerId: result[0].sellerid,
+        BuyerId: result[0].buyerid,
+        NearestRtoOffice: result[0].nearestrtooffice,
+        Price: result[0].price,
+        Type: result[0].type,
+        Tags: result[0].tags,
+        Images: result[0].images,
+        carApiId: result[0].carapiid,
+      };
+
+      // Map the fetched data to the CarSpecifications object
+      const carSpecifications = {
+        id: result[0]["ModelId"],
+        "Max Power (bhp)": result[0]["Max Power (bhp)"],
+        Engine: result[0]["Engine"],
+        Torque: result[0]["Torque"],
+        Seats: result[0]["Seats"] ? result[0]["Seats"] : "4",
+        "Displacement (cc)": result[0]["Displacement (cc)"],
+        "Brake Type (rear)": result[0]["Brake Type (rear)"],
+        "Brake Type (front)": result[0]["Brake Type (front)"],
+        Cylinders: result[0]["Cylinders"],
+        "Max Power (rpm)": result[0]["Max Power (rpm)"]
+          ? result[0]["Max Power (rpm)"]
+          : "NA",
+        "Emission Standard": result[0]["Emission Standard"],
+        "Fuel Tank Capacity": result[0]["Fuel Tank Capacity"],
+        "Body Type": result[0]["Body Type"],
+        "Boot Space (Litres)": result[0]["Boot Space (Litres)"],
+      };
+
+      // Map the missing data in CarFeatures object
+      const carFeatures = {
+        id: result[0]["ModelId"],
+        "Power Steering": true,
+        Heater: true,
+        "Anti lock Braking System": true,
+        "Power Window Front": true,
+        "Adjustable Head Lights": true,
+        "Central Locking": true,
+        "Air Conditioning": true,
+        "Fog Lights Front": true,
+        Radio: true,
+        "Fog Lights - Rear": false,
+        "Cruise Control": true,
+        "Automatic Climate Control": false,
+      };
+      return { carOverview, carFeatures, carSpecifications };
+    }
+  );
+
+  return { carOverview, carFeatures, carSpecifications };
 };
 
 module.exports = CarDetails;

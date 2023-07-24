@@ -77,6 +77,19 @@ CarData.getModelByMakeId = async (makeId) => {
     `;
   } catch (error) {
     console.error("Error fetching name on the basis of make_id:", error);
+  }
+};
+
+CarData.getCarDetailByMakeIdModelAndName = async (makeId, name, trim) => {
+  try {
+    return await sql`
+          SELECT * FROM car_data WHERE make_id = ${makeId} AND name = ${name} AND trim = ${trim}
+        `;
+  } catch (error) {
+    console.error(
+      "Error fetching trim on the basis of make_id, year, and name:",
+      error
+    );
     throw error;
   }
 };

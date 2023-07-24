@@ -38,15 +38,13 @@ router.get("/failed", (req, res) => {
 
 router.get("/register/success", async (req, res) => {
     if (req.authData && req.authData.email) {
-        // res.status(200).send(req.authData)
-        const { name, firstName, lastName, email, phoneNo, authProvider } = req.authData;
-
+        const { name, first_name, last_name, email, auth_provider } = req.authData;
         try {
             const user = await User.getByEmail(email);
             if (user) {
                 return res.status(409).send({ message: "User already exist! Please Login." });
             }
-            await User.create(name, firstName, lastName, email, phoneNo, null, authProvider);
+            await User.create(name, first_name, last_name, email, null, null, auth_provider);
             res.status(201).send(req.authData);
         } catch (error) {
             console.error("Error while registering user:", error);
@@ -80,10 +78,10 @@ router.get('/users/:id', async (req, res) => {
 // Route to update user profile
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, firstName, lastName, phoneNo, authProvider, bookmarkIds } = req.body;
+    const { name, firstName, lastName, phoneNo, authProvider } = req.body;
 
     try {
-        const updatedUser = await User.update(id, name, firstName, lastName, phoneNo, authProvider, bookmarkIds);
+        const updatedUser = await User.update(id, name, firstName, lastName, phoneNo, authProvider);
 
         if (updatedUser) {
             res.status(200).json(updatedUser);
@@ -113,6 +111,103 @@ router.delete('/users/:id', async (req, res) => {
         res.status(500).json({ message: 'Error occurred while deleting user account' });
     }
 });
+
+// Route to get user orders
+router.get('/users/:id/orders', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            const order_details = await User.getOrders(id);
+            res.status(200).json(order_details);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error getting user orders:', error);
+        res.status(500).json({ message: 'Error occurred while fetching orders' });
+    }
+});
+
+// Route to get user bookmarks
+router.get('/users/:id/bookmarks', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            const bookmarks = await User.getBookmarks(id);
+            res.status(200).json(bookmarks);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error getting user bookmarks:', error);
+        res.status(500).json({ message: 'Error occurred while fetching bookmarks' });
+    }
+});
+
+// Route to create wishlists
+router.post('/users/:id/bookmarks', async (req, res) => {
+    const { id } = req.params;
+    const { bookmarkId } = req.body;
+
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            await User.addBookmarks(id, bookmarkId);
+            res.status(200).json({ message: 'Bookmarks created successfully' });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error creating bookmarks:', error);
+        res.status(500).json({ message: 'Error occurred while creating bookmarks' });
+    }
+});
+
+// Route to remove bookmark IDs
+router.delete('/users/:id/bookmarks', async (req, res) => {
+    const { id } = req.params;
+    const { bookmarkId } = req.body;
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            await User.removeBookmarks(id, bookmarkId);
+            res.status(200).json({ message: 'Bookmark IDs removed successfully' });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error removing bookmark IDs:', error);
+        res.status(500).json({ message: 'Error occurred while removing bookmark IDs' });
+    }
+});
+
+// Route to clear all bookmark IDs
+router.delete('/users/:id/bookmarks/clear', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.getById(id);
+
+        if (user) {
+            await User.clearBookmarks(id);
+            res.status(200).json({ message: 'All bookmark IDs cleared successfully' });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error clearing all bookmark IDs:', error);
+        res.status(500).json({ message: 'Error occurred while clearing all bookmark IDs' });
+    }
+});
+
 
 
 module.exports = router;

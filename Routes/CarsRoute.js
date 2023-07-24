@@ -302,25 +302,26 @@ router.get("/search", async (req, res) => {
     brands,
     minPrice,
     maxPrice,
-    models,
+    type,
     year,
     fuelType,
     kmDriven,
     transmission,
     nearestRtoOffice,
+    ownership,
   } = req.query;
-
   try {
     const carDetails = await CarDetails.getCarDetailsWithOptionalParameters(
       brands ? [brands.split(",")] : null,
       minPrice,
       maxPrice,
-      models ? [models.split(",")] : null,
+      type ? [type.split(",")] : null,
       year,
-      fuelType,
+      fuelType ? [fuelType.split(",")] : null,
       kmDriven,
       transmission,
-      nearestRtoOffice
+      nearestRtoOffice,
+      ownership ? [ownership.split(",")] : null
     );
     return res.json(carDetails);
   } catch (error) {
@@ -418,14 +419,29 @@ router.get(
         "Error fetching CarDetails by brand, model and price range:",
         error
       );
-      return res
-        .status(500)
-        .json({
-          message:
-            "Error occurred while fetching CarDetails by brand, model and price range",
-        });
+      return res.status(500).json({
+        message:
+          "Error occurred while fetching CarDetails by brand, model and price range",
+      });
     }
   }
 );
+
+// Route to fetch features and specifications based on id
+router.get("/details/ids/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { carOverview, carFeatures, carSpecifications } =
+      await CarDetails.getCarDetailsById(id);
+    return res
+      .status(200)
+      .json({ carOverview, carFeatures, carSpecifications });
+  } catch (error) {
+    console.error("Error fetching car Details:", error);
+    return res
+      .status(500)
+      .json({ message: "Error occurred while fetching car details" });
+  }
+});
 
 module.exports = router;

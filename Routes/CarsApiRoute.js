@@ -39,7 +39,6 @@ router.get("/ids/:id", async (req, res) => {
 router.get("/make_id", async (req, res) => {
   try {
     const makeIds = await CarData.getDistinctMakeIds();
-    // console.log(makeIds);
     return res.json(makeIds);
   } catch (error) {
     console.error("Error fetching distinct make_id:", error);
@@ -74,6 +73,28 @@ router.get("/make_id/:makeId/year/:year/name/:name/trim", async (req, res) => {
   try {
     const trims = await CarData.getTrimByMakeIdYearAndName(makeId, year, name);
     return res.json(trims);
+  } catch (error) {
+    console.error(
+      "Error fetching trim on the basis of make_id, year, and name:",
+      error
+    );
+    return res
+      .status(500)
+      .json({ message: "Error occurred while fetching trim" });
+  }
+});
+
+// Route to fetch car detail on the basis of make_id, model, and variant
+router.get("/make_id/:makeId/name/:name/trim/:trim", async (req, res) => {
+  const { makeId, name, trim } = req.params;
+
+  try {
+    const carDetail = await CarData.getCarDetailByMakeIdModelAndName(
+      makeId,
+      name,
+      trim
+    );
+    return res.json(carDetail);
   } catch (error) {
     console.error(
       "Error fetching trim on the basis of make_id, year, and name:",
