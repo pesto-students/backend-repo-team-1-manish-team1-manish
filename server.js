@@ -28,7 +28,10 @@ app.use(passport.session());
 require("./DB/PostgresSql");
 app.use(
   cors({
-    origin: process.env.CORS_URL,
+    origin:
+      process.env.NODE_ENV === "dev"
+        ? process.env.DEV_CORS_URL
+        : process.env.PROD_CORS_URL,
     credentials: true,
     optionSuccessStatus: 200,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
@@ -42,7 +45,5 @@ app.use("/cars", carsRouter);
 app.use("/cars-api", carsApiRouter);
 app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
-const callbackURL = process.env.CALLBACK_URL;
-console.log(callbackURL);
 
 app.listen(port, () => console.log("server running on port" + port));
