@@ -286,7 +286,6 @@ CarDetails.getCarDetailsWithOptionalParameters = async (
           : sql``
       }
       `;
-
     return await query;
   } catch (error) {
     console.error("Error getting car details with optional parameters:", error);

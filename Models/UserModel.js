@@ -15,7 +15,7 @@ User.create = async (
   authProvider
 ) => {
   try {
-    const hashedPassword = !authProvider ? await bcrypt.hash(password, 10) : "";
+    const hashedPassword = authProvider ? await bcrypt.hash(password, 10) : "";
     await sql`
       INSERT INTO users (id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids, otp)
       VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${null}, ${null})

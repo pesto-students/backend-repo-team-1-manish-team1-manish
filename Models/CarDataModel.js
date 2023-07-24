@@ -70,6 +70,16 @@ CarData.getTrimByMakeIdYearAndName = async (makeId, year, name) => {
   }
 };
 
+CarData.getModelByMakeId = async (makeId) => {
+  try {
+    return await sql`
+        SELECT DISTINCT(name) FROM car_data WHERE make_id=${makeId}
+    `;
+  } catch (error) {
+    console.error("Error fetching name on the basis of make_id:", error);
+  }
+};
+
 CarData.getCarDetailByMakeIdModelAndName = async (makeId, name, trim) => {
   try {
     return await sql`
