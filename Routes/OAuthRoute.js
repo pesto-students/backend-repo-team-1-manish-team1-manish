@@ -97,7 +97,7 @@ router.post("/otp/send", async (req, res) => {
             return res.status(404).send({ message: "User does not exist!" });
         }
 
-        const isMailSent = await Mailer.sendOtp(user.name, user.email);
+        const isMailSent = await Mailer.sendForgotPassOtp(user.name, user.email);
 
         if (isMailSent) {
             return res.status(200).send({ message: "Mail sent Successfully !" });
@@ -111,7 +111,7 @@ router.post("/otp/send", async (req, res) => {
     }
 });
 
-// Route to handle reset password
+// Route to handle otp validation
 router.post("/otp/validate", async (req, res) => {
     const { email, otp } = req.body;
     try {
@@ -136,7 +136,7 @@ router.post("/otp/validate", async (req, res) => {
     }
 });
 
-// Route to handle otp request
+//Route to handle reset password
 router.post("/otp/reset", async (req, res) => {
     const { email, password } = req.body;
     const otp = req.cookies.otp ?? null;
@@ -157,6 +157,41 @@ router.post("/otp/reset", async (req, res) => {
 
     } catch (error) {
         console.error("Error while resetting password:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
+// Route to handle otp request for user verfication
+router.post("/verify/otp/send", async (req, res) => {
+    const { name, email } = req.body;
+    try {
+        const isMailSent = await Mailer.sendUserVerificationOtp(name, email);
+
+        if (isMailSent) {
+            return res.status(200).send({ message: "Mail sent Successfully !" });
+        } else {
+            return res.status(400).send({ message: "Something went wrong! Please try again." });
+        }
+
+    } catch (error) {
+        console.error("Error while sending otp:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
+// Route to handle otp validation for user verifcation
+router.post("/verify/otp/validate", async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const isOtpValid = await Mailer.verifyUserVerificationOtp(email, otp);
+
+        if (isOtpValid) {
+            return res.sendStatus(200);
+        } else {
+            return res.status(400).send({ message: "Invalid OTP provided!" });
+        }
+    } catch (error) {
+        console.error("Error while validating otp:", error);
         return res.status(500).send({ message: "Something went wrong! Please try again." });
     }
 });
