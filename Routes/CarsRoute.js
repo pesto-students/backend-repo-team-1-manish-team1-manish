@@ -3,6 +3,12 @@ const router = express.Router();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const CarDetails = require("../Models/CarDetailsModel");
+const Razorpay = require("razorpay");
+
+const instance = new Razorpay({
+  key_id: "rzp_test_6BX5HrCgQIm4TE",
+  key_secret: "2jPXaQqqNCynogV2dd7bVOXl",
+});
 
 router.use(cookieParser());
 router.use(bodyParser.json());
@@ -442,6 +448,29 @@ router.get("/details/ids/:id", async (req, res) => {
       .status(500)
       .json({ message: "Error occurred while fetching car details" });
   }
+});
+
+router.get("/order_id/price/:price", async (req, res) => {
+  const { price } = req.params;
+
+  try {
+    const orderDetail = await instance.orders.create({
+      amount: price,
+      currency: "INR",
+    });
+
+    res.json(orderDetail);
+  } catch (error) {
+    console.error("Error creating order_id on the basis of price:", error);
+    return res
+      .status(500)
+      .json({ message: "Error occurred while creating order_id" });
+  }
+});
+
+router.post("/sucess-payment", async (req, res) => {
+  console.log(req.body);
+  return res.json(req.body);
 });
 
 module.exports = router;

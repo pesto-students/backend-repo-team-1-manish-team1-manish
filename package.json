@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "export NODE_ENV=production && node server.js",
-    "dev": "export NODE_ENV=dev && node server.js"
+    "dev": "export NODE_ENV=dev && nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +25,7 @@
     "nodemailer": "^6.9.3",
     "passport": "^0.5.3",
     "passport-google-oauth20": "^2.0.0",
-    "postgres": "^3.3.5"
+    "postgres": "^3.3.5",
+    "razorpay": "^2.9.1"
   }
 }
