@@ -20,6 +20,7 @@ passport.use(
       clientSecret: CLIENT_SECRET,
       callbackURL:
         process.env.NODE_ENV === "dev" ? DEV_CALLBACK_URL : PROD_CALLBACK_URL,
+      state: true,
       passReqToCallback: true,
     },
     async (request, accessToken, refreshToken, profile, done) => {
