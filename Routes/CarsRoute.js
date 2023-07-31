@@ -4,11 +4,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const CarDetails = require("../Models/CarDetailsModel");
 const Razorpay = require("razorpay");
-
-const instance = new Razorpay({
-  key_id: "rzp_test_6BX5HrCgQIm4TE",
-  key_secret: "2jPXaQqqNCynogV2dd7bVOXl",
-});
+const path = require("path");
 
 router.use(cookieParser());
 router.use(bodyParser.json());
@@ -454,9 +450,15 @@ router.get("/order_id/price/:price", async (req, res) => {
   const { price } = req.params;
 
   try {
+    const instance = new Razorpay({
+      key_id: "rzp_test_6BX5HrCgQIm4TE",
+      key_secret: "2jPXaQqqNCynogV2dd7bVOXl",
+    });
+
     const orderDetail = await instance.orders.create({
       amount: price,
       currency: "INR",
+      receipt: "receipt_order_74394",
     });
 
     res.json(orderDetail);
@@ -468,9 +470,11 @@ router.get("/order_id/price/:price", async (req, res) => {
   }
 });
 
-router.post("/sucess-payment", async (req, res) => {
-  console.log(req.body);
-  return res.json(req.body);
+router.post("/success-payment", async (req, res) => {
+  if (req.body?.razorpay_payment_id) {
+    return res.redirect("http://localhost:3001/me");
+  }
+  return res.json({ error: "404" });
 });
 
 module.exports = router;
