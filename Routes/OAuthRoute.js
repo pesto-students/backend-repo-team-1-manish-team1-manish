@@ -187,7 +187,7 @@ router.get('/google/callback',
 
 router.get("/logout", (req, res) => {
     req.logOut();
-    res.clearCookie('jwtoken', { sameSite: 'none', secure: true });
+    res.clearCookie('jwtoken', { httpOnly: true, secure: true, sameSite: 'none' });
     res.sendStatus(200);
 })
 
