@@ -470,11 +470,4 @@ router.get("/order_id/price/:price", async (req, res) => {
   }
 });
 
-router.post("/success-payment", async (req, res) => {
-  if (req.body?.razorpay_payment_id) {
-    return res.redirect("http://localhost:3001/me");
-  }
-  return res.json({ error: "404" });
-});
-
 module.exports = router;
