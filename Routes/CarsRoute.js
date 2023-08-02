@@ -451,8 +451,8 @@ router.get("/order_id/price/:price", async (req, res) => {
 
   try {
     const instance = new Razorpay({
-      key_id: "rzp_test_6BX5HrCgQIm4TE",
-      key_secret: "2jPXaQqqNCynogV2dd7bVOXl",
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
     const orderDetail = await instance.orders.create({
