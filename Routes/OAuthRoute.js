@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
+const Cookie = require('cookies');
 const bodyParser = require('body-parser');
 const authService = require('../Middleware/AuthService');
 require('dotenv').config();
@@ -34,7 +35,9 @@ router.post("/register", async (req, res) => {
                     return res.status(500).send({ message: "Internal Server Error!" });
                 } else {
                     // Set the token in the response as a cookie or in the response body as needed
-                    res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                    // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                    const cookie = new Cookie(req, res, {});
+                    cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
 
                     // return res.status(200).send({ message: "User successfully registered !", token });
                     return res.status(201).send(newUser);
@@ -65,14 +68,16 @@ router.post("/login", async (req, res) => {
             jwt.sign(
                 { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
-                { expiresIn: '120 min' },
+                { expiresIn: '60 min' },
                 (err, token) => {
                     if (err) {
                         console.error("Error signing token:", err);
                         return res.status(500).send({ message: "Internal Server Error!" });
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
-                        res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                        // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                        const cookie = new Cookie(req, res, {});
+                        cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
 
                         // return res.status(200).send({ message: "Login successful", token });
                         return res.status(200).send(user);
@@ -211,18 +216,16 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true });
-        // res.cookie("jwtoken", req.token, {
-        //     expires: new Date(Date.now() + 258920000000000),
-        //     httpOnly: true
-        // });
+        const cookie = new Cookie(req, res, {});
+        cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(Date.now() + 1000 * 60 * 60) });
         res.send('<script>window.close()</script>');
     }
 );
 
 router.get("/logout", (req, res) => {
-    req.logOut();
-    res.clearCookie('jwtoken', { path: '/' });
+    const cookie = new Cookie(req, res, {});
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(0), overwrite: true });
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, expires: new Date(0), overwrite: true });
     res.sendStatus(200);
 })
 
