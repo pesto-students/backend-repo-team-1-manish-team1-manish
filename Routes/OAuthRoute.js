@@ -176,14 +176,19 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(Date.now() + 1000 * 60 * 60) });
+        res.set({
+            "Set-Cookie": `jwtoken=${req.token}; HttpOnly; path=/`,
+            "Access-Control-Allow-Credentials": "true",
+        })
         res.send('<script>window.close()</script>');
     }
 );
 
 router.get("/logout", (req, res) => {
     req.logOut();
-    res.cookie('jwtoken', '', { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(0), overwrite: true });
+    res.set({
+        "Set-Cookie": `jwtoken=; HttpOnly; path=/; max-age=0`,
+    });
     res.sendStatus(200);
 })
 
