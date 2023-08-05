@@ -176,7 +176,7 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, domain: 'https://exquisite-cupcake-a874e7.netlify.app' });
+        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(1) });
         // res.cookie("jwtoken", req.token, {
         //     expires: new Date(Date.now() + 258920000000000),
         //     httpOnly: true
@@ -187,6 +187,7 @@ router.get('/google/callback',
 
 router.get("/logout", (req, res) => {
     req.logOut();
+    res.clearCookie('jwtoken', { path: '/' });
     res.clearCookie('jwtoken', { path: '/', domain: 'https://exquisite-cupcake-a874e7.netlify.app' });
     res.sendStatus(200);
 })
