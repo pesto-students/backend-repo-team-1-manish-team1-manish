@@ -176,7 +176,7 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(1) });
+        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none' });
         // res.cookie("jwtoken", req.token, {
         //     expires: new Date(Date.now() + 258920000000000),
         //     httpOnly: true
