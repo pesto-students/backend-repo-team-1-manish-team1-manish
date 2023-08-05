@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
+const Cookie = require('cookies');
 const bodyParser = require('body-parser');
 const authService = require('../Middleware/AuthService');
 require('dotenv').config();
@@ -34,7 +35,9 @@ router.post("/register", async (req, res) => {
                     return res.status(500).send({ message: "Internal Server Error!" });
                 } else {
                     // Set the token in the response as a cookie or in the response body as needed
-                    res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                    // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                    const cookie = new Cookie(req, res, {});
+                    cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
 
                     // return res.status(200).send({ message: "User successfully registered !", token });
                     return res.status(201).send(newUser);
@@ -65,14 +68,16 @@ router.post("/login", async (req, res) => {
             jwt.sign(
                 { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
-                { expiresIn: '120 min' },
+                { expiresIn: '60 min' },
                 (err, token) => {
                     if (err) {
                         console.error("Error signing token:", err);
                         return res.status(500).send({ message: "Internal Server Error!" });
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
-                        res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                        // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
+                        const cookie = new Cookie(req, res, {});
+                        cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
 
                         // return res.status(200).send({ message: "Login successful", token });
                         return res.status(200).send(user);
@@ -97,7 +102,7 @@ router.post("/otp/send", async (req, res) => {
             return res.status(404).send({ message: "User does not exist!" });
         }
 
-        const isMailSent = await Mailer.sendOtp(user.name, user.email);
+        const isMailSent = await Mailer.sendForgotPassOtp(user.name, user.email);
 
         if (isMailSent) {
             return res.status(200).send({ message: "Mail sent Successfully !" });
@@ -111,7 +116,7 @@ router.post("/otp/send", async (req, res) => {
     }
 });
 
-// Route to handle reset password
+// Route to handle otp validation
 router.post("/otp/validate", async (req, res) => {
     const { email, otp } = req.body;
     try {
@@ -136,7 +141,7 @@ router.post("/otp/validate", async (req, res) => {
     }
 });
 
-// Route to handle otp request
+//Route to handle reset password
 router.post("/otp/reset", async (req, res) => {
     const { email, password } = req.body;
     const otp = req.cookies.otp ?? null;
@@ -161,6 +166,41 @@ router.post("/otp/reset", async (req, res) => {
     }
 });
 
+// Route to handle otp request for user verfication
+router.post("/verify/otp/send", async (req, res) => {
+    const { name, email } = req.body;
+    try {
+        const isMailSent = await Mailer.sendUserVerificationOtp(name, email);
+
+        if (isMailSent) {
+            return res.status(200).send({ message: "Mail sent Successfully !" });
+        } else {
+            return res.status(400).send({ message: "Something went wrong! Please try again." });
+        }
+
+    } catch (error) {
+        console.error("Error while sending otp:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
+// Route to handle otp validation for user verifcation
+router.post("/verify/otp/validate", async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const isOtpValid = await Mailer.verifyUserVerificationOtp(email, otp);
+
+        if (isOtpValid) {
+            return res.sendStatus(200);
+        } else {
+            return res.status(400).send({ message: "Invalid OTP provided!" });
+        }
+    } catch (error) {
+        console.error("Error while validating otp:", error);
+        return res.status(500).send({ message: "Something went wrong! Please try again." });
+    }
+});
+
 router.get('/google',
     passport.authenticate('google', {
         scope: ['email', 'profile'],
@@ -176,19 +216,16 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.set({
-            "Set-Cookie": `jwtoken=${req.token}; HttpOnly; path=/`,
-            "Access-Control-Allow-Credentials": "true",
-        })
+        const cookie = new Cookie(req, res, {});
+        cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(Date.now() + 1000 * 60 * 60) });
         res.send('<script>window.close()</script>');
     }
 );
 
 router.get("/logout", (req, res) => {
-    req.logOut();
-    res.set({
-        "Set-Cookie": `jwtoken=; HttpOnly; path=/; max-age=0`,
-    });
+    const cookie = new Cookie(req, res, {});
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(0), overwrite: true });
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, expires: new Date(0), overwrite: true });
     res.sendStatus(200);
 })
 

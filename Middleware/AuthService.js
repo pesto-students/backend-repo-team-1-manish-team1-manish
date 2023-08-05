@@ -6,8 +6,24 @@ exports.checkTokenMW = (req, res, next) => {
     // Get auth header value
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
-        req.token = bearerHeader.split(' ')[1];
-        next();
+        const token = bearerHeader.split('=')[1];
+        if (token) {
+            jwt.verify(token, process.env.CLIENT_SECRET, (err, authData) => {
+                if (err) {
+                    return res.status(403).send({
+                        message: `Authentication Failed!`
+                    });
+                } else {
+                    req.authData = authData;
+                    next();
+                }
+            })
+        }
+        else {
+            return res.status(401).send({
+                message: "Authentication Failed!"
+            });
+        }
     } else {
         return res.sendStatus(403);
     }

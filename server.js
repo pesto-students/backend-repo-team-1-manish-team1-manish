@@ -8,37 +8,28 @@ const carsRouter = require("./Routes/CarsRoute");
 const userAuthRouter = require("./Routes/AuthRoute");
 const passport = require("passport");
 const cors = require("cors");
-const cookieSession = require("cookie-session");
-
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
 app.use(
-  cookieSession({
-    name: "session",
-    keys: ["carbazaar"],
-    maxAge: 24 * 60 * 60 * 100,
-  })
+    cors({
+        origin:
+            process.env.NODE_ENV === "dev "
+                ? process.env.DEV_CORS_URL
+                : process.env.PROD_CORS_URL,
+        credentials: true,
+        optionSuccessStatus: 200,
+        methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+        allowedHeaders:
+            "Content-type,Accept,Access-Control-Allow-Credentials,Access-Control-Allow-Origin",
+    })
 );
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
-app.use(passport.session());
 require("./DB/PostgresSql");
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "dev"
-        ? process.env.DEV_CORS_URL
-        : process.env.PROD_CORS_URL,
-    credentials: true,
-    optionSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders:
-      "Content-type,Accept,Access-Control-Allow-Credentials,Access-Control-Allow-Origin",
-  })
-);
 
 app.use("/cars", carsRouter);
 app.use("/cars-api", carsApiRouter);

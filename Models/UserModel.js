@@ -15,14 +15,14 @@ User.create = async (
   authProvider
 ) => {
   try {
-    const hashedPassword = !authProvider ? await bcrypt.hash(password, 10) : "";
+    const hashedPassword = authProvider === "self" ? await bcrypt.hash(password, 10) : "";
     await sql`
       INSERT INTO users (id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids, otp)
-      VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${null}, ${null})
+      VALUES (gen_random_uuid(), ${name}, ${firstName}, ${lastName}, ${email}, ${phoneNo}, ${hashedPassword}, gen_random_uuid(), ${authProvider}, ${sql.array()}, ${null})
     `;
     const newUser = (
       await sql`
-    SELECT id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider FROM users WHERE email = ${email}
+    SELECT id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids FROM users WHERE email = ${email}
   `
     )[0];
     return newUser;
@@ -202,7 +202,7 @@ User.removeBookmarks = async (id, bookmarkIds) => {
         UPDATE users
         SET bookmark_ids = CASE
             WHEN array_length(bookmark_ids, 1) = 1
-                THEN NULL
+                THEN ${sql.array()}
             ELSE array_remove(bookmark_ids, ${bookmarkIds})
             END
         WHERE id = ${id};
