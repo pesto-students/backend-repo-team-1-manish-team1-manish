@@ -187,8 +187,8 @@ router.get('/google/callback',
 
 router.get("/logout", (req, res) => {
     req.logOut();
-    res.clearCookie('jwtoken', { path: '/' });
-    res.clearCookie('jwtoken', { path: '/', domain: 'https://exquisite-cupcake-a874e7.netlify.app' });
+    res.clearCookie('jwtoken', { path: '/', domain: 'car-bazar-backend-pesto-team.vercel.app' });
+    res.clearCookie('jwtoken', { path: '/', domain: 'exquisite-cupcake-a874e7.netlify.app' });
     res.sendStatus(200);
 })
 
