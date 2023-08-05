@@ -176,19 +176,14 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, domain: 'exquisite-cupcake-a874e7.netlify.app' });
-        // res.cookie("jwtoken", req.token, {
-        //     expires: new Date(Date.now() + 258920000000000),
-        //     httpOnly: true
-        // });
+        res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(Date.now() + 1000 * 60 * 60) });
         res.send('<script>window.close()</script>');
     }
 );
 
 router.get("/logout", (req, res) => {
     req.logOut();
-    // res.clearCookie('jwtoken', { path: '/', domain: 'car-bazar-backend-pesto-team.vercel.app' });
-    res.clearCookie('jwtoken', { path: '/', domain: 'exquisite-cupcake-a874e7.netlify.app' });
+    res.cookie('jwtoken', req.token, { httpOnly: true, secure: true, sameSite: 'none', expires: new Date(0) });
     res.sendStatus(200);
 })
 
