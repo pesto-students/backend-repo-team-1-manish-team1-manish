@@ -217,7 +217,7 @@ router.get('/google/callback',
     authService.signToken,
     (req, res) => {
         const cookie = new Cookie(req, res, { secure: true });
-        cookie.set('jwtoken', req.token, { secure: false, httpOnly: true, sameSite: 'none', maxAge: (1000 * 60 * 60) });
+        cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', maxAge: (1000 * 60 * 60) });
         res.send('<script>window.close()</script>');
     }
 );
