@@ -14,7 +14,7 @@ const app = express();
 app.use(
     cors({
         origin:
-            process.env.NODE_ENV === "dev "
+            process.env.NODE_ENV === "dev"
                 ? process.env.DEV_CORS_URL
                 : process.env.PROD_CORS_URL,
         credentials: true,
@@ -38,4 +38,4 @@ app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 
 
-app.listen(port, () => console.log("server running on port" + port))
+app.listen(port, () => console.log("server running on port " + port))
