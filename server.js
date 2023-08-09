@@ -38,4 +38,4 @@ app.use(authMiddleware.verifyToken);
 app.use("/auth", userAuthRouter);
 
 
-app.listen(port, () => console.log("server running on port" + port))
+app.listen(port, () => console.log("server running on port " + port))

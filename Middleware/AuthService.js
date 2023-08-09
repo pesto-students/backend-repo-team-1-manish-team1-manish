@@ -6,7 +6,7 @@ exports.checkTokenMW = (req, res, next) => {
     // Get auth header value
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
-        const token = bearerHeader.split('=')[1];
+        const token = bearerHeader.split(' ')[1];
         if (token) {
             jwt.verify(token, process.env.CLIENT_SECRET, (err, authData) => {
                 if (err) {
@@ -53,7 +53,7 @@ exports.verifyToken = (req, res, next) => {
 
 // Issue Token
 exports.signToken = (req, res, next) => {
-    jwt.sign({ userId: req.user.id, first_name: req.user.name.givenName, last_name: req.user.name.familyName, email: req.user.emails[0].value, name: req.user.displayName, auth_provider: req.user.provider }, process.env.CLIENT_SECRET, { expiresIn: '120 min' }, (err, token) => {
+    jwt.sign({ userId: req.user.id, first_name: req.user.name.givenName, last_name: req.user.name.familyName, email: req.user.emails[0].value, name: req.user.displayName, auth_provider: req.user.provider }, process.env.CLIENT_SECRET, { expiresIn: '60 min' }, (err, token) => {
         if (err) {
             return res.sendStatus(500);
         } else {
