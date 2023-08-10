@@ -36,8 +36,8 @@ router.post("/register", async (req, res) => {
                 } else {
                     // Set the token in the response as a cookie or in the response body as needed
                     // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
-                    const cookie = new Cookie(req, res, {});
-                    cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
+                    const cookie = new Cookie(req, res, { secure: true });
+                    cookie.set('jwtoken', token, { secure: true, httpOnly: true, maxAge: (1000 * 60 * 60) });
 
                     // return res.status(200).send({ message: "User successfully registered !", token });
                     return res.status(201).send(newUser);
@@ -76,8 +76,8 @@ router.post("/login", async (req, res) => {
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
-                        const cookie = new Cookie(req, res, {});
-                        cookie.set('jwtoken', token, { secure: true, httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60) });
+                        const cookie = new Cookie(req, res, { secure: true });
+                        cookie.set('jwtoken', token, { secure: true, httpOnly: true, maxAge: (1000 * 60 * 60) });
 
                         // return res.status(200).send({ message: "Login successful", token });
                         return res.status(200).send(user);
@@ -216,17 +216,17 @@ router.get('/google/callback',
     }),
     authService.signToken,
     (req, res) => {
-        const cookie = new Cookie(req, res, {});
-        cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(Date.now() + 1000 * 60 * 60) });
+        const cookie = new Cookie(req, res, { secure: true });
+        cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', maxAge: (1000 * 60 * 60) });
         res.send('<script>window.close()</script>');
     }
 );
 
 router.get("/logout", (req, res) => {
-    const cookie = new Cookie(req, res, {});
-    cookie.set('jwtoken', '', { secure: true, httpOnly: true, sameSite: 'none', expires: new Date(0), overwrite: true });
-    cookie.set('jwtoken', '', { secure: true, httpOnly: true, expires: new Date(0), overwrite: true });
-    res.sendStatus(200);
+    const cookie = new Cookie(req, res, { secure: true });
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, maxAge: 0, sameSite: 'none', overwrite: true });
+    res.clearCookie('jwtoken', { path: '/' });
+    res.send('<script>window.close()</script>');
 })
 
 module.exports = router;
