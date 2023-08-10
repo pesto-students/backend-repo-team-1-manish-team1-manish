@@ -223,10 +223,10 @@ router.get('/google/callback',
 );
 
 router.get("/logout", (req, res) => {
-    const cookie = new Cookie(req, res, { secure: true, overwrite: true });
-    // cookie.set('jwtoken', '', { secure: true, httpOnly: true, sameSite: 'none', maxAge: 0, overwrite: true });
-    cookie.set('jwtoken', '', { secure: false, httpOnly: true, maxAge: 0, overwrite: true });
-    res.sendStatus(200);
+    const cookie = new Cookie(req, res, { secure: true });
+    cookie.set('jwtoken', '', { secure: true, httpOnly: true, maxAge: 0, sameSite: 'none', overwrite: true });
+    res.clearCookie('jwtoken', { path: '/' });
+    res.send('<script>window.close()</script>');
 })
 
 module.exports = router;
