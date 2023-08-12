@@ -224,8 +224,9 @@ router.get('/google/callback',
 
 router.get("/logout", (req, res) => {
     const cookie = new Cookie(req, res, { secure: true });
-    cookie.set('jwtoken', '', { secure: true, httpOnly: true, maxAge: 0, sameSite: 'none', overwrite: true });
-    res.clearCookie('jwtoken', { path: '/' });
+    // cookie.set('jwtoken', '', { secure: true, httpOnly: true, maxAge: 0, sameSite: 'none', overwrite: true });
+    cookie.set('jwtoken', req.token, { secure: true, httpOnly: true, sameSite: 'none', maxAge: 0 });
+    // res.clearCookie('jwtoken', { path: '/' });
     res.send('<script>window.close()</script>');
 })
 
