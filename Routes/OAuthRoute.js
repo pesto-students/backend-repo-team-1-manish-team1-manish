@@ -35,11 +35,7 @@ router.post("/register", async (req, res) => {
                     return res.status(500).send({ message: "Internal Server Error!" });
                 } else {
                     // Set the token in the response as a cookie or in the response body as needed
-                    // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
-                    const cookie = new Cookie(req, res, { secure: true });
-                    cookie.set('jwtoken', token, { secure: true, httpOnly: true, maxAge: (1000 * 60 * 60) });
-
-                    // return res.status(200).send({ message: "User successfully registered !", token });
+                    res.cookie('jwtoken', token, { httpOnly: true, secure: true, maxAge: (1000 * 60 * 60) });
                     return res.status(201).send(newUser);
                 }
             }
@@ -75,11 +71,7 @@ router.post("/login", async (req, res) => {
                         return res.status(500).send({ message: "Internal Server Error!" });
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
-                        // res.cookie('jwtoken', token, { httpOnly: true, secure: true });
-                        const cookie = new Cookie(req, res, { secure: true });
-                        cookie.set('jwtoken', token, { secure: true, httpOnly: true, maxAge: (1000 * 60 * 60) });
-
-                        // return res.status(200).send({ message: "Login successful", token });
+                        res.cookie('jwtoken', token, { httpOnly: true, secure: true, maxAge: (1000 * 60 * 60) });
                         return res.status(200).send(user);
                     }
                 }

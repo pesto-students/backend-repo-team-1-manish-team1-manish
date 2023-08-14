@@ -22,7 +22,7 @@ User.create = async (
     `;
     const newUser = (
       await sql`
-    SELECT id, name, first_name, last_name, email, phone_no, password, role_id, auth_provider, bookmark_ids FROM users WHERE email = ${email}
+    SELECT id, name, first_name, last_name, email, phone_no, bookmark_ids FROM users WHERE email = ${email}
   `
     )[0];
     return newUser;
@@ -36,7 +36,7 @@ User.create = async (
 User.get = async () => {
   try {
     return await sql`
-      SELECT * FROM users
+      SELECT id, name, first_name, last_name, email, phone_no, bookmark_ids FROM users
     `;
   } catch (error) {
     console.error("Error getting users:", error);
@@ -99,23 +99,26 @@ User.getOrders = async (id) => {
 
 // UPDATE A USER
 User.update = async (
-  email,
+  id,
   name,
   firstName,
   lastName,
-  phoneNo,
-  authProvider
+  phoneNo
 ) => {
   try {
     let query = sql`UPDATE users SET name = ${name}
         ${firstName ? sql`, first_name = ${firstName}` : sql``}
         ${lastName ? sql`, last_name = ${lastName}` : sql``}
         ${phoneNo ? sql`, phone_no = ${phoneNo}` : sql``}
-        ${authProvider ? sql`, auth_provider = ${authProvider}` : sql``}
-        WHERE email = ${email}
+        WHERE id = ${id}
         `;
 
-    return await sql`${query}`;
+    await sql`${query}`;
+    return (
+      await sql`
+    SELECT id, name, first_name, last_name, email, phone_no, bookmark_ids FROM users WHERE id = ${id}
+  `
+    )[0];
   } catch (error) {
     console.error("Error updating user:", error);
     throw error;
@@ -166,10 +169,25 @@ User.getBookmarks = async (id) => {
   try {
     return (
       await sql`
-        SELECT bookmark_ids from users
-        WHERE id = ${id};
+      SELECT 
+      car_details.brand,
+      car_details.model,
+      car_details.year,
+      CASE
+          WHEN car_details.buyerid = ${id} THEN 'Bought'
+          WHEN car_details.sellerid = ${id} AND car_details.buyerid IS NULL THEN 'Listed'
+          WHEN car_details.buyerid IS NULL THEN 'Available'
+          WHEN car_details.sellerid IS NOT NULL THEN 'Sold Out'
+          ELSE 'Not involved'
+      END AS order_status
+      FROM 
+          users 
+      INNER JOIN 
+          car_details
+          ON car_details.id = ANY(users.bookmark_ids)
+      WHERE users.id = ${id};
       `
-    )[0];
+    );
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
     throw error;
