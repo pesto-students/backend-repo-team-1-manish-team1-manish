@@ -78,15 +78,14 @@ router.get('/users/:id', async (req, res) => {
 // Route to update user profile
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, firstName, lastName, phoneNo, authProvider } = req.body;
-
+    const { firstName, lastName, phoneNo } = req.body;
     try {
-        const updatedUser = await User.update(id, name, firstName, lastName, phoneNo, authProvider);
+        const updatedUser = await User.update(id, `${firstName} ${lastName}`, firstName, lastName, phoneNo);
 
         if (updatedUser) {
             res.status(200).json(updatedUser);
         } else {
-            res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'User does not exist!' });
         }
     } catch (error) {
         console.error('Error updating user profile:', error);
