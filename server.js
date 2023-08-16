@@ -24,7 +24,7 @@ app.use(
             "Content-type,Accept,Access-Control-Allow-Credentials,Access-Control-Allow-Origin",
     })
 );
-app.set("trust proxy", 1);
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
