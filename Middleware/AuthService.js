@@ -53,7 +53,7 @@ exports.verifyToken = (req, res, next) => {
 
 // Issue Token
 exports.signToken = (req, res, next) => {
-    jwt.sign({ userId: req.user.id, first_name: req.user.name.givenName, last_name: req.user.name.familyName, email: req.user.emails[0].value, name: req.user.displayName, auth_provider: req.user.provider }, process.env.CLIENT_SECRET, { expiresIn: '60 min' }, (err, token) => {
+    jwt.sign({ id: req.user.id, first_name: req.user.name.givenName, last_name: req.user.name.familyName, email: req.user.emails[0].value, name: req.user.displayName, auth_provider: req.user.provider }, process.env.CLIENT_SECRET, { expiresIn: '60 min' }, (err, token) => {
         if (err) {
             return res.sendStatus(500);
         } else {
