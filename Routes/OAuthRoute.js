@@ -72,13 +72,8 @@ router.post("/login", async (req, res) => {
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, sameSite: "none", secure: true });
-                        const cookie = new Cookie(req, res, { secure: true });
-                        cookie.set("jwtoken", token, {
-                            secure: true,
-                            httpOnly: true,
-                            sameSite: "strict",
-                            maxAge: 1000 * 60 * 60,
-                        });
+                        const cookie = new Cookie(req, res, {});
+                        cookie.set("jwtoken", token, {});
                         return res.status(200).send(user);
                     }
                 }
@@ -265,7 +260,7 @@ router.get("/logout", (req, res) => {
         sameSite: "none",
         overwrite: true,
     });
-    // res.clearCookie("jwtoken", { path: "/" });
+    res.clearCookie("jwtoken", { path: "/" });
     res.send("<script>window.close()</script>");
 });
 
