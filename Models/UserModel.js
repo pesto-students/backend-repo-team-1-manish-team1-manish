@@ -49,7 +49,7 @@ User.getById = async (id) => {
   try {
     return (
       await sql`
-      SELECT * FROM users WHERE id = ${id}
+      SELECT id, name, first_name, last_name, email, phone_no, bookmark_ids FROM users WHERE id = ${id}
     `
     )[0];
   } catch (error) {
@@ -63,7 +63,7 @@ User.getByEmail = async (email) => {
   try {
     return (
       await sql`
-      SELECT * FROM users WHERE email = ${email}
+      SELECT id, name, first_name, last_name, email, phone_no, bookmark_ids FROM users WHERE email = ${email}
     `
     )[0];
   } catch (error) {

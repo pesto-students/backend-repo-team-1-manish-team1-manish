@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
         }
         const newUser = await User.create(name, firstName, lastName, email, phoneNo, password, 'self');
         jwt.sign(
-            { userId: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, auth_provider: newUser.auth_provider },
+            { id: newUser.id, name: newUser.name, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, auth_provider: newUser.auth_provider },
             process.env.CLIENT_SECRET,
             { expiresIn: '120 min' },
             (err, token) => {
@@ -62,7 +62,7 @@ router.post("/login", async (req, res) => {
         if (isPasswordValid) {
             // If password validation is successful, generate the token using the signToken function
             jwt.sign(
-                { userId: user.id, name: user.name, email: user.email, first_name: user.first_name, auth_provider: user.auth_provider },
+                { id: user.id, name: user.name, email: user.email, first_name: user.first_name, last_name: user.last_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
                 { expiresIn: '60 min' },
                 (err, token) => {
@@ -71,8 +71,8 @@ router.post("/login", async (req, res) => {
                         return res.status(500).send({ message: "Internal Server Error!" });
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
-                        res.cookie('jwtoken', token, { httpOnly: true, domain: 'carbazaar-frontend.netlify.app', maxAge: (1000 * 60 * 60) });
-                        return res.status(200).send(user);
+                        res.cookie('jwtoken', token, { httpOnly: true, secure: true, maxAge: (1000 * 60 * 60) });
+                        return res.sendStatus(200).send(user);
                     }
                 }
             );
