@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
                         return res.status(500).send({ message: "Internal Server Error!" });
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
-                        res.cookie('jwtoken', token, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: (1000 * 60 * 60) });
+                        res.cookie('jwtoken', token, { httpOnly: true, secure: true });
                         return res.status(200).send(user);
                     }
                 }
