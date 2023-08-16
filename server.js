@@ -35,6 +35,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
+app.use(passport.session());
 require("./DB/PostgresSql");
 
 app.use("/cars", carsRouter);
