@@ -6,7 +6,6 @@ const userOAuthRouter = require("./Routes/OAuthRoute");
 const carsApiRouter = require("./Routes/CarsApiRoute");
 const carsRouter = require("./Routes/CarsRoute");
 const userAuthRouter = require("./Routes/AuthRoute");
-const cookieSession = require('cookie-session');
 const passport = require("passport");
 const cors = require("cors");
 require("dotenv").config();
@@ -26,11 +25,6 @@ app.use(
     })
 );
 
-app.use(cookieSession({
-    name: 'session',
-    keys: ['carbazaar'],
-    maxAge: 1000 * 60 * 60,
-}));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
