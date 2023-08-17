@@ -275,7 +275,7 @@ router.get("/logout", (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: 'none'
-    })sendStatus(200);
+    }).sendStatus(200);
     // res.send("<script>window.close()</script>");
 });
 
