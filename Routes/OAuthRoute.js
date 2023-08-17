@@ -80,7 +80,7 @@ router.post("/login", async (req, res) => {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, sameSite: "none", secure: true });
                         const cookie = new Cookie(req, res, { secure: true });
-                        cookie.set("jwtoken", req.token, {
+                        cookie.set("jwtoken", "", {
                             secure: true,
                             httpOnly: true,
                             sameSite: "none",
