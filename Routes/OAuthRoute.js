@@ -270,14 +270,13 @@ router.get("/logout", (req, res) => {
     //     sameSite: "none",
     //     overwrite: true,
     // });
-    res.cookie("jwtoken", '', {
+    return res.status(200).cookie("jwtoken", '', {
         expires: new Date(Date.now() - 2589200000000),
         httpOnly: true,
         secure: true,
         sameSite: 'none'
     });
     // res.send("<script>window.close()</script>");
-    return res.sendStatus(200);
 });
 
 module.exports = router;
