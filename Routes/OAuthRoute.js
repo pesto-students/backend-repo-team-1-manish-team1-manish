@@ -272,7 +272,7 @@ router.get("/logout", (req, res) => {
         sameSite: "none",
         overwrite: true,
     });
-    res.clearCookie("jwtoken", { path: "/" });
+    // res.clearCookie("jwtoken", { path: "/" });
     res.send("<script>window.close()</script>");
 });
 
