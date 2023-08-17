@@ -68,14 +68,6 @@ router.post("/login", async (req, res) => {
 
         if (isPasswordValid) {
             // If password validation is successful, generate the token using the signToken function
-            const cookie = new Cookie(req, res, { secure: true });
-                        cookie.set("jwtoken", "", {
-                            secure: true,
-                            httpOnly: true,
-                            sameSite: "none",
-                            maxAge: 0,
-                        });
-                        return res.status(200).send(user);
             jwt.sign(
                 { id: user.id, name: user.name, email: user.email, first_name: user.first_name, last_name: user.last_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
@@ -88,11 +80,11 @@ router.post("/login", async (req, res) => {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, sameSite: "none", secure: true });
                         const cookie = new Cookie(req, res, { secure: true });
-                        cookie.set("jwtoken", "", {
+                        cookie.set("jwtoken", token, {
                             secure: true,
                             httpOnly: true,
                             sameSite: "none",
-                            maxAge: 0,
+                            maxAge: 1000 * 60 * 60,
                         });
                         return res.status(200).send(user);
                     }
@@ -271,21 +263,15 @@ router.get(
     }
 );
 
-router.get("/logout", (req, res) => {
-    // const cookie = new Cookie(req, res, { secure: true });
-    // cookie.set("jwtoken", "", {
-    //     secure: true,
-    //     httpOnly: true,
-    //     maxAge: 0,
-    //     sameSite: "none",
-    //     overwrite: true,
-    // });
-    return res.cookie("jwtoken", '', {
-        expires: new Date(Date.now() - 2589200000000),
-        httpOnly: true,
+router.post("/logout", (req, res) => {
+    const cookie = new Cookie(req, res, { secure: true });
+    cookie.set("jwtoken", "", {
         secure: true,
-        sameSite: 'none'
-    }).sendStatus(200);
+        httpOnly: true,
+        sameSite: "none",
+        maxAge: 0,
+    });
+    return res.sendStatus(200);
     // res.send("<script>window.close()</script>");
 });
 
