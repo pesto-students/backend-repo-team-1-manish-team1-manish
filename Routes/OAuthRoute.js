@@ -79,12 +79,14 @@ router.post("/login", async (req, res) => {
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, sameSite: "none", secure: true });
-                        return res.status(200).cookie("jwtoken", token, {
-                            expires: new Date(Date.now() + 2589200000000),
-                            httpOnly: true,
+                        const cookie = new Cookie(req, res, { secure: true });
+                        cookie.set("jwtoken", req.token, {
                             secure: true,
-                            sameSite: 'none'
-                        }).send(user);
+                            httpOnly: true,
+                            sameSite: "none",
+                            maxAge: 1000 * 60 * 60 * 0,
+                        });
+                        return res.status(200).send(user);
                     }
                 }
             );
