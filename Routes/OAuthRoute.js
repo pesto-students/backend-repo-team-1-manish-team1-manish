@@ -271,19 +271,12 @@ router.get("/logout", (req, res) => {
     //     sameSite: "none",
     //     overwrite: true,
     // });
-    res.clearCookie("jwtoken", { 
-        path: "/",
-        expires: new Date(Date.now()),
+    res.cookie("jwtoken", '', {
+        expires: new Date(Date.now() - 2589200000000),
         httpOnly: true,
         secure: true,
         sameSite: 'none'
     });
-    // res.cookie("jwtoken", '', {
-    //     expires: new Date(Date.now() - 2589200000000),
-    //     httpOnly: true,
-    //     secure: true,
-    //     sameSite: 'none'
-    // });
     // res.send("<script>window.close()</script>");
     return res.sendStatus(200);
 });
