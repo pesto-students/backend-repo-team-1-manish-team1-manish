@@ -265,13 +265,19 @@ router.get(
 
 router.get("/logout", (req, res) => {
     const cookie = new Cookie(req, res, { secure: true });
-    cookie.set("jwtoken", "", {
+    cookie.set("jwtoken", req.token, {
         secure: true,
         httpOnly: true,
-        maxAge: 0,
         sameSite: "none",
-        overwrite: true,
+        maxAge: 0,
     });
+    // cookie.set("jwtoken", "", {
+    //     secure: true,
+    //     httpOnly: true,
+    //     maxAge: 0,
+    //     sameSite: "none",
+    //     overwrite: true,
+    // });
     // res.clearCookie("jwtoken", { path: "/" });
     res.send("<script>window.close()</script>");
 });
