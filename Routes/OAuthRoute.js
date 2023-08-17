@@ -267,7 +267,7 @@ router.get("/logout", (req, res) => {
     //     overwrite: true,
     // });
     // res.clearCookie("jwtoken", { path: "/" });
-    res.setHeader('Set-Cookie', `jwtoken=${token}; Max-Age=0; HttpOnly; Secure; SameSite=None`);
+    res.setHeader('Set-Cookie', `jwtoken=; Max-Age=0; HttpOnly; Secure; SameSite=None`);
     // res.send("<script>window.close()</script>");
     return res.sendStatus(200);
 });
