@@ -68,6 +68,14 @@ router.post("/login", async (req, res) => {
 
         if (isPasswordValid) {
             // If password validation is successful, generate the token using the signToken function
+            const cookie = new Cookie(req, res, { secure: true });
+                        cookie.set("jwtoken", "", {
+                            secure: true,
+                            httpOnly: true,
+                            sameSite: "none",
+                            maxAge: 0,
+                        });
+                        return res.status(200).send(user);
             jwt.sign(
                 { id: user.id, name: user.name, email: user.email, first_name: user.first_name, last_name: user.last_name, auth_provider: user.auth_provider },
                 process.env.CLIENT_SECRET,
