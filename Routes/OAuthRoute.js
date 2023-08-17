@@ -274,6 +274,7 @@ router.get("/logout", (req, res) => {
     });
     res.clearCookie("jwtoken", { path: "/" });
     // res.send("<script>window.close()</script>");
+    return res.sendStatus(200);
 });
 
 module.exports = router;
