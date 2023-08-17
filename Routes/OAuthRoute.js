@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
                     } else {
                         // Set the token in the response as a cookie or in the response body as needed
                         // res.cookie('jwtoken', token, { httpOnly: true, sameSite: "none", secure: true });
-                        res.setHeader('Set-Cookie', `jwtoken=${token}; Max-Age=60;`);
+                        res.setHeader('Set-Cookie', `jwtoken=${token}; Max-Age=60; Secure;`);
                         return res.status(200).send(user);
                     }
                 }
@@ -267,7 +267,7 @@ router.get("/logout", (req, res) => {
     //     overwrite: true,
     // });
     // res.clearCookie("jwtoken", { path: "/" });
-    res.setHeader('Set-Cookie', `jwtoken=; Max-Age=0;`);
+    res.setHeader('Set-Cookie', `jwtoken=; Max-Age=0; Secure;`);
     // res.send("<script>window.close()</script>");
     return res.sendStatus(200);
 });
