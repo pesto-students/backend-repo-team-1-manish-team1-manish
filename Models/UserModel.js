@@ -63,7 +63,7 @@ User.getByEmail = async (email) => {
   try {
     return (
       await sql`
-      SELECT id, name, first_name, last_name, email, password, phone_no, bookmark_ids FROM users WHERE email = ${email}
+      SELECT id, name, first_name, last_name, email, password, phone_no, bookmark_ids, otp FROM users WHERE email = ${email}
     `
     )[0];
   } catch (error) {
