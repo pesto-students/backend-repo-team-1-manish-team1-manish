@@ -44,8 +44,8 @@ router.get("/register/success", async (req, res) => {
             if (user) {
                 return res.status(409).send({ message: "User already exist! Please Login." });
             }
-            await User.create(name, first_name, last_name, email, null, null, auth_provider);
-            res.status(201).send(req.authData);
+            const createdUser = await User.create(name, first_name, last_name, email, null, null, auth_provider);
+            res.status(201).send(createdUser);
         } catch (error) {
             console.error("Error while registering user:", error);
             res.status(500).send({ message: "Error occurred while registering user" });
